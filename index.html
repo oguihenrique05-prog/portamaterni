@@ -926,7 +926,7 @@
                             <div class="discount-bar mt-4">Desconto válido por: <span id="timer1">00:00</span></div>
                         </div>
 
-                        <!-- OFERTA 2: KIT PREMIUM (R$ 27) - RECOMENDADO (Fidelizado para o estilo neon e com os textos do print) -->
+                        <!-- OFERTA 2: KIT PREMIUM (R$ 27) - RECOMENDADO -->
                         <div class="bg-white p-6 rounded-[32px] shadow-2xl border-4 border-[#FF3366] relative text-center pt-8">
                             <!-- BADGE DE RECOMENDADO -->
                             <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF3366] text-white font-black text-xs px-6 py-2 rounded-full shadow-md uppercase tracking-wider">
@@ -990,7 +990,7 @@
                 <section class="text-center mb-10">
                     <!-- SELO SEGURANÇA -->
                     <div class="mb-4">
-                        <img src="imagem6.webp" alt="Compra segura certificada" class="mx-auto w-32 md:w-40">
+                        <img src="imagem6.webp" alt="Compra segura certificada" class="mx-auto w-32 md:w-40" onerror="this.onerror=null; this.src='https://placehold.co/200x40/FFE5EC/FF3366?text=COMPRA+SEGURA';">
                     </div>
 
                     <h2 class="text-2xl font-extrabold text-gray-900 mb-2">Quem faz recomenda!</h2>
@@ -1000,7 +1000,7 @@
                     <!-- Bloco de Depoimento Renata -->
                     <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-200 mb-6 text-left max-w-md mx-auto">
                         <div class="flex items-center mb-3">
-                            <img src="imagem7.webp" alt="Foto da aluna Renata" class="rounded-full mr-3 w-10 h-10 object-cover">
+                            <img src="imagem7.webp" alt="Foto da aluna Renata" class="rounded-full mr-3 w-10 h-10 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/FFF0F3/FF3366?text=R';">
                             <div>
                                 <p class="text-sm font-bold text-gray-900">Renata Epibanc</p>
                                 <p class="text-xs text-yellow-500">★★★★★</p>
@@ -1024,7 +1024,7 @@
                     <div class="warning-box bg-white border-primary shadow-xl p-6" style="border-color: #FF3366;">
                         <!-- SELO GARANTIA -->
                         <div class="mb-4">
-                            <img src="imagem8.webp" alt="Ícone de garantia incondicional" class="mx-auto w-20 h-20">
+                            <img src="imagem8.webp" alt="Ícone de garantia incondicional" class="mx-auto w-20 h-20" onerror="this.onerror=null; this.src='https://placehold.co/100x100/FFE5EC/FF3366?text=7+DIAS';">
                         </div>
                         <h4 class="text-xl font-extrabold text-gray-900 mb-2">7 DIAS DE GARANTIA INCONDICIONAL!</h4>
                         <p class="text-sm text-gray-700 mb-3">TESTE SEM COMPROMISSO. SE NÃO GOSTAR, DEVOLVEMOS CADA CENTAVO!</p>
@@ -1081,7 +1081,7 @@
                 <section class="mb-10 text-center">
                     <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary" style="border-top-color: #FF3366;">
                         <!-- AVATAR MARI FARIAS -->
-                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #FF3366;">
+                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #FF3366;" onerror="this.onerror=null; this.src='https://placehold.co/150x100/FFF0F3/FF3366?text=MARI';">
                         
                         <h4 class="text-lg font-bold text-gray-900 mb-1">Mari Farias</h4>
                         <p class="text-sm text-gray-600 mb-4">Criadora do Treinamento <strong class="font-bold color-primary">Porta Maternidade Lucrativo</strong>, artesã e especialista em maternidade desde 2019.</p>
@@ -1100,10 +1100,65 @@
                             Quero viver trabalhando de casa!
                         </a>
 
-                        <!-- SELO PAGAMENTO INFERIOR -->
-                        <div class="mt-4">
-                            <img src="imagem11.webp" alt="Formas de pagamento seguras" class="mx-auto w-32 md:w-40">
+                        <!-- FAQ SEÇÃO ACCORDION -->
+                        <div class="mt-10 text-left border-t border-gray-100 pt-8">
+                            <h3 class="text-xl font-extrabold text-gray-900 mb-6 text-center">
+                                Perguntas <span class="color-primary">Frequentes (FAQ)</span>
+                            </h3>
+                            <div class="space-y-4">
+                                <!-- FAQ 1 -->
+                                <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                    <button onclick="toggleFaq('faq1')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
+                                        <span>Como vou receber o acesso ao conteúdo?</span>
+                                        <span id="faq1-icon" class="text-xl color-primary font-bold">+</span>
+                                    </button>
+                                    <div id="faq1" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                        Você receberá todo o acesso de forma 100% digital diretamente no seu e-mail cadastrado logo após a confirmação do pagamento. Pagamentos via PIX ou Cartão de Crédito são aprovados e liberados em menos de 2 minutos automaticamente!
+                                    </div>
+                                </div>
+                                <!-- FAQ 2 -->
+                                <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                    <button onclick="toggleFaq('faq2')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
+                                        <span>Preciso de alguma experiência com artesanato?</span>
+                                        <span id="faq2-icon" class="text-xl color-primary font-bold">+</span>
+                                    </button>
+                                    <div id="faq2" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                        Não! O método foi totalmente desenhado para iniciantes absolutos. Eu te pego pela mão e mostro cada detalhe da montagem na mesa da sua sala, sem complicações.
+                                    </div>
+                                </div>
+                                <!-- FAQ 3 -->
+                                <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                    <button onclick="toggleFaq('faq3')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
+                                        <span>Quais materiais preciso para começar?</span>
+                                        <span id="faq3-icon" class="text-xl color-primary font-bold">+</span>
+                                    </button>
+                                    <div id="faq3" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                        Você começará com materiais muito simples e baratos, como bastidores de MDF, tecidos infantis básicos, cola e enfeites simples. Além disso, no curso você recebe a minha lista secreta de fornecedores com os melhores preços da internet para economizar ao máximo.
+                                    </div>
+                                </div>
+                                <!-- FAQ 4 -->
+                                <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                    <button onclick="toggleFaq('faq4')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
+                                        <span>Por quanto tempo terei acesso ao treinamento?</span>
+                                        <span id="faq4-icon" class="text-xl color-primary font-bold">+</span>
+                                    </button>
+                                    <div id="faq4" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                        O seu acesso ao treinamento é 100% vitalício! Isso significa que você pode assistir às aulas no seu próprio ritmo, rever as instruções quantas vezes achar necessário e o conteúdo nunca expirará.
+                                    </div>
+                                </div>
+                                <!-- FAQ 5 -->
+                                <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                    <button onclick="toggleFaq('faq5')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
+                                        <span>E se eu não gostar ou achar que não é para mim?</span>
+                                        <span id="faq5-icon" class="text-xl color-primary font-bold">+</span>
+                                    </button>
+                                    <div id="faq5" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                        Fique totalmente tranquila! Você tem uma garantia incondicional de 7 dias respaldada por lei. Se por qualquer motivo não amar o conteúdo, basta solicitar o reembolso e devolvemos cada centavo do seu dinheiro imediatamente.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </section>
 
@@ -1522,6 +1577,20 @@
             updateTimer('timer1', TIMER_DURATION); 
             updateTimer('timer2', TIMER_DURATION); 
             updateTimer('timer3', TIMER_DURATION); 
+        }
+
+        // --- LÓGICA DE INTERAÇÃO DO FAQ (ACCORDION) ---
+        function toggleFAQ(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.faq-icon');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '−';
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '+';
+            }
         }
 
         // Reseta o estado das páginas no carregamento inicial
