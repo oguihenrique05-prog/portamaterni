@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funil de Vendas - Porta Maternidade Lucrativo</title>
+    
+    <!-- Carrega o Tailwind CSS para um design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Define a fonte Inter como padrão para toda a página */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+        /* Cor principal: rosa escuro sofisticado com alto contraste */
+        .color-primary {
+            color: #D45278; 
+        }
+        /* Fundo principal: rosa delicado vibrante para botões e blocos em destaque */
+        .bg-primary {
+            background-color: #E15F84; 
+        }
+        /* Fundo suave: rosa clarinho/blush para os botões desmarcados do quiz */
+        .bg-button {
+            background-color: #FCF0F3; 
+        }
+        .shadow-button {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        /* Classe para esconder elementos por padrão */
+        .hidden {
+            display: none !important;
+        }
+        /* Estilo para os checkboxes reais customizados */
+        input[type='checkbox'] {
+            --tw-ring-color: #E15F84; 
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.15s ease-in-out;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 2px solid #F3C1CD; /* Borda rosa sutil */
+        }
+
+        input[type='checkbox']:checked {
+            background-color: #E15F84;
+            border-color: #E15F84;
+            /* Ícone de check branco */
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 00-1.414 0L7 8.586 4.207 5.793a1 1 0 00-1.414 1.414l3.5 3.5a1 1 0 001.414 0l5-5a1 1 0 000-1.414z'/%3e%3csvg>");
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Estilo para o texto das labels quando o checkbox é checado */
+        .label-checked-bg {
+            background-color: #E15F84;
+            box-shadow: 0 10px 15px -3px rgba(225, 95, 132, 0.2), 0 4px 6px -4px rgba(225, 95, 132, 0.1);
+        }
+        .label-checked-text {
+            color: #ffffff !important;
+        }
+        .label-checked-bg input[type='checkbox'] {
+             border-color: #ffffff !important; /* Borda branca para o checkbox checado */
+        }
+        
+        /* Estilos específicos para a barra de progresso */
+        #progressBarContainer {
+            background-color: #FCE7EC; /* Fundo rosa claro */
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            width: 100%;
+        }
+        #progressBarFill {
+            height: 100%;
+            background-color: #E15F84;
+            width: 0%;
+            transition: width 3s linear;
+        }
+        
+        /* Estilos para lista de benefícios e avisos */
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        .check-icon {
+            color: #10B981; /* Verde esmeralda para os checks */
+            font-size: 1.5rem;
+            line-height: 1;
+            margin-right: 0.5rem;
+            margin-top: 0.1rem;
+        }
+        .warning-box {
+            background-color: #E6FFE6; 
+            border: 2px solid #10B981; 
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Estilo para o botão de preço */
+        .price-button {
+            background-color: #37C261; /* Verde do botão de compra */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Estilo para a caixa de preço com fundo verde claro */
+        .price-box {
+            background-color: #E6FFE6; 
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            text-align: right;
+        }
+
+        /* Estilo para a barra de desconto válido */
+        .discount-bar {
+            background-color: #FEEEEE; 
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #E53E3E; 
+            font-weight: bold;
+        }
+
+        /* Estilo do bloco rosa no topo da oferta */
+        .top-offer-bar {
+            background-color: #E15F84;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: bold;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex justify-center min-h-screen">
+
+    <!-- CONTAINER PRINCIPAL: GEREICIAMENTO DE VISUALIZAÇÃO -->
+    <div class="max-w-xl w-full text-center">
+
+        <!-- ========================================================= -->
+        <!-- VIEW 1: LANDING PAGE (VISÍVEL POR PADRÃO) -->
+        <!-- ========================================================= -->
+        <div id="landingPage">
+            
+            <!-- TÍTULO PRINCIPAL -->
+            <header class="mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-none color-primary mt-1 uppercase">
+                    PORTA MATERNIDADE LUCRATIVO
+                </h2>
+            </header>
+
+            <!-- INTRODUÇÃO E CHAMADA DE ATENÇÃO -->
+            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+                <p class="mb-4">
+                    Oi, tudo bem? Me chamo <strong class="color-primary">Mari Farias</strong> e trabalho com artesanato focado em maternidade.
+                </p>
+                <p class="font-bold">
+                    Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
+                    <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
+                    montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
+                </p>
+            </section>
+
+            <!-- CARROSSEL DE IMAGENS (4 FOTOS) COM CAMINHO LOCAL PARA O GIT -->
+            <div class="mb-8 p-4 bg-primary rounded-xl shadow-2xl relative overflow-hidden">
+                <div class="relative w-full overflow-hidden rounded-lg">
+                    <!-- Slides Container -->
+                    <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
+                        <div class="w-full flex-shrink-0">
+                            <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-64 md:h-80 object-cover rounded-lg">
+                        </div>
+                        <div class="w-full flex-shrink-0">
+                            <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-64 md:h-80 object-cover rounded-lg">
+                        </div>
+                        <div class="w-full flex-shrink-0">
+                            <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-64 md:h-80 object-cover rounded-lg">
+                        </div>
+                        <div class="w-full flex-shrink-0">
+                            <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-64 md:h-80 object-cover rounded-lg">
+                        </div>
+                    </div>
+
+                    <!-- Botões de Navegação -->
+                    <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Slide anterior">
+                        &#10094;
+                    </button>
+                    <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Próximo slide">
+                        &#10095;
+                    </button>
+
+                    <!-- Pontos Indicadores -->
+                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
+                        <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
+                        <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
+                        <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
+                        <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
+            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+                <p>
+                    E o <strong class="font-bold">melhor</strong>? Vou te ensinar <strong class="font-bold color-primary">agora</strong> como você também
+                    pode fazer e conquistar a sua independência financeira! Clique no botão abaixo para começar.
+                </p>
+            </section>
+
+            <!-- BOTÃO DE AÇÃO -->
+            <div>
+                <button onclick="showQuiz()" class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                                    font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                    transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                   role="button">
+                    Quero descobrir como!
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- VIEW 2: QUIZ SOBRE ARTESANATO -->
+        <!-- ========================================================= -->
+        <div id="quizPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Você já trabalha com produção de lembrancinhas ou algo relacionado a <span class="bg-primary text-white p-1 rounded-md">artesanato?</span>
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA -->
+                <main class="space-y-4">
+
+                    <!-- Opção 1 -->
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Troféu">🏆</span>
+                            <span class="text-lg font-semibold text-gray-800">Sim, já sou artesã profissional e quero diversificar.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <!-- Opção 2 -->
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Sorriso">😁</span>
+                            <span class="text-lg font-semibold text-gray-800">Sim, faço por hobby ou para presentear conhecidos.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <!-- Opção 3 -->
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji Pensativo">🤔</span>
+                            <span class="text-lg font-semibold text-gray-800">Não, mas quero aprender do zero para lucrar!</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <!-- Opção 4 -->
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Olhos Cansados">😢</span>
+                            <span class="text-lg font-semibold text-gray-800">Não, só gostaria de aprender para fazer para o meu próprio filho/família.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                </main>
+            </div>
+        </div>
+        
+        <!-- ========================================================= -->
+        <!-- VIEW 3: QUIZ SOBRE CURSOS -->
+        <!-- ========================================================= -->
+        <div id="quizCursoPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Você já fez algum curso ou treinamento sobre confecção de <span class="bg-primary text-white p-1 rounded-md">Porta Maternidade?</span>
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA -->
+                <main class="space-y-4">
+
+                    <!-- Opção 1 -->
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji Rindo">😂</span>
+                            <span class="text-lg font-semibold text-gray-800">Nunca fiz, esse vai ser o meu primeiro contato.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <!-- Opção 2 -->
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Livro">📖</span>
+                            <span class="text-lg font-semibold text-gray-800">Já fiz um curso, mas achei as técnicas muito difíceis ou caras.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <!-- Opção 3 -->
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
+                            <span class="text-lg font-semibold text-gray-800">Já fiz vários cursos, mas ainda não consegui vender e ter lucro.</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                </main>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 4: QUIZ SOBRE TEMPO -->
+        <!-- ========================================================= -->
+        <div id="quizTempoPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Quanto tempo por dia você tem para dedicar à montagem de <span class="color-primary">porta maternidade</span> atualmente?
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA -->
+                <main class="space-y-4">
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
+                            <span class="text-lg font-semibold text-gray-800">De 30 minutos a 1 hora por dia</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
+                            <span class="text-lg font-semibold text-gray-800">2 a 4 horas por dia</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
+                            <span class="text-lg font-semibold text-gray-800">Tenho o dia todo livre!</span>
+                        </span>
+                        <span class="text-xl color-primary">&gt;</span>
+                    </button>
+
+                </main>
+            </div>
+        </div>
+        
+        <!-- ========================================================= -->
+        <!-- VIEW 5: QUIZ SOBRE DORES (MÚLTIPLA ESCOLHA) -->
+        <!-- ========================================================= -->
+        <div id="quizDoresPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        O que mais te <span class="color-primary">incomoda</span> hoje?
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Selecione uma ou mais opções para avançar</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
+                <main class="space-y-4">
+                    
+                    <!-- Checkbox 1 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Triste">😥</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra dinheiro para fazer as coisas que gosto</span>
+                        </span>
+                        <input type="checkbox" name="dor" value="dinheiro_lazer" class="h-6 w-6">
+                    </label>
+
+                    <!-- Checkbox 2 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Congelado">🥶</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra tempo pra ficar com minha família</span>
+                        </span>
+                         <input type="checkbox" name="dor" value="falta_tempo" class="h-6 w-6">
+                    </label>
+
+                    <!-- Checkbox 3 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Chorando">😭</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não consigo guardar dinheiro no fim do mês</span>
+                        </span>
+                         <input type="checkbox" name="dor" value="guardar_dinheiro" class="h-6 w-6">
+                    </label>
+
+                    <!-- Botão Continuar -->
+                    <div class="mt-8 pt-4">
+                        <button onclick="showQuestion5()" 
+                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                            role="button">
+                            Continuar
+                        </button>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 6: QUIZ SOBRE OBJETIVOS (MÚLTIPLA ESCOLHA) -->
+        <!-- ========================================================= -->
+        <div id="quizObjetivosPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        O que mais você <span class="color-primary">almeja</span> hoje?
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Selecione uma ou mais opções para avançar</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
+                <main class="space-y-4">
+                    
+                    <!-- Checkbox 1 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Gostaria de conquistar independência financeira trabalhando de casa</span>
+                        </span>
+                        <input type="checkbox" name="objetivo" value="independencia" class="h-6 w-6">
+                    </label>
+
+                    <!-- Checkbox 2 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Alvo">🎯</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero alavancar meus resultados no meu próprio negócio</span>
+                        </span>
+                         <input type="checkbox" name="objetivo" value="alavancar" class="h-6 w-6">
+                    </label>
+
+                    <!-- Checkbox 3 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Cowboy">🤠</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero faturar mais para dar conforto à minha família</span>
+                        </span>
+                         <input type="checkbox" name="objetivo" value="mais_dinheiro" class="h-6 w-6">
+                    </label>
+
+                    <!-- Botão Continuar -->
+                    <div class="mt-8 pt-4">
+                        <button onclick="showQuestion6()" 
+                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                            role="button">
+                            Continuar
+                        </button>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 7: QUIZ SOBRE OBJETIVO PÓS-CURSO (ALTERNATIVA ÚNICA) -->
+        <!-- ========================================================= -->
+        <div id="quizObjetivoFinalPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO QUIZ -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Depois que você estiver montando seus <span class="color-primary">enfeites de maternidade</span>, qual será seu principal <span class="bg-primary text-white p-1 rounded-md">objetivo</span>?
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600">Seja sincera, é muito importante.</p>
+                </header>
+
+                <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
+                <main class="space-y-4">
+                    
+                    <!-- Opção 1 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Vou querer aprender com você como vender e lucrar muito com as peças.</span>
+                        </span>
+                        <input type="checkbox" name="objetivo_final" value="lucrar" class="h-6 w-6">
+                    </label>
+
+                    <!-- Opção 2 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Taça de Champanhe">🥂</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Alavancar o meu atelier de maternidade já existente.</span>
+                        </span>
+                         <input type="checkbox" name="objetivo_final" value="alavancar" class="h-6 w-6">
+                    </label>
+
+                    <!-- Opção 3 -->
+                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
+                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                        <span class="flex items-center text-left">
+                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
+                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Apenas gostaria de fazer as peças como terapia ou presente.</span>
+                        </span>
+                         <input type="checkbox" name="objetivo_final" value="hobby" class="h-6 w-6">
+                    </label>
+
+                    <!-- Botão Continuar -->
+                    <div class="mt-8 pt-4">
+                        <button onclick="showFinalOffer()" 
+                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                            role="button">
+                            Continuar
+                        </button>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 8: PÁGINA DE VENDA (ELIMINAÇÃO DE OBJEÇÃO) -->
+        <!-- ========================================================= -->
+        <div id="finalOfferPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO -->
+                <header class="mb-10">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Mas precisa ter <span class="color-primary">habilidade</span> ou ser <span class="bg-primary text-white p-1 rounded-md">expert em costura?</span>
+                    </h1>
+                </header>
+
+                <!-- IMAGEM ILUSTRATIVA DO PROCESSO (CAMINHO LOCAL PARA O GIT) -->
+                <div class="mb-8">
+                    <img 
+                        src="imagem2.webp" 
+                        alt="Processo facilitado de montagem de enfeites infantis." 
+                        class="w-full h-auto rounded-xl shadow-xl object-cover"
+                    >
+                </div>
+
+                <!-- RESPOSTA EM DESTAQUE -->
+                <section class="text-2xl font-extrabold mb-8 text-gray-900">
+                    A resposta é <span class="color-primary">não</span>!
+                </section>
+                
+                <!-- TEXTO EXPLICATIVO -->
+                <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+                    <p class="mb-4">
+                        Com as <strong class="font-bold">técnicas práticas de montagem</strong> e moldes prontos, montar enfeites de porta maternidade fica muito 
+                        <strong class="font-bold">mais fácil e rápido</strong>. No meu método, você aprende o <strong class="font-bold color-primary">passo a passo completo</strong>, mesmo <strong class="font-bold">sem nenhuma experiência prévia!</strong>
+                    </p>
+                </section>
+
+                <!-- BOTÃO DE DESTINO -->
+                <div>
+                    <button onclick="showFinalPage()" 
+                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                        role="button">
+                        Quero aprender o passo a passo!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 9: PÁGINA FINAL (FOCO NO CUSTO) -->
+        <!-- ========================================================= -->
+        <div id="finalPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- IMAGEM COM PRODUTOS FINAIS (CAMINHO LOCAL PARA O GIT) -->
+                <div class="mb-8">
+                    <img 
+                        src="imagem3.webp" 
+                        alt="Vários modelos prontos de porta maternidade delicados." 
+                        class="w-full h-auto rounded-xl shadow-xl object-cover"
+                    >
+                </div>
+
+                <!-- TÍTULO DE IMPACTO -->
+                <header class="mb-6">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        A <span class="color-primary">melhor</span> parte!
+                    </h1>
+                </header>
+
+                <!-- TEXTO EXPLICATIVO SOBRE CUSTO -->
+                <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
+                    <p>
+                        O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
+                        Com <strong class="font-bold">menos de R$ 15,00</strong> in materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                    </p>
+                    <p>
+                        Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
+                    </p>
+                </section>
+
+                <!-- BOTÃO DE DESTINO -->
+                <div>
+                     <button onclick="showTestimonials()" 
+                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                        role="button">
+                        Continuar
+                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 10: DEPOIMENTOS (PROVA SOCIAL) -->
+        <!-- ========================================================= -->
+        <div id="testimonialsPage" class="hidden">
+            <div class="mt-12 md:mt-16">
+                <!-- TÍTULO -->
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Depoimentos de quem aplicou o método <span class="color-primary">Porta Maternidade Lucrativo!</span>
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-600 font-medium">
+                        Veja os resultados de mulheres reais que seguiram o passo a passo da Mari Farias.
+                    </p>
+                </header>
+
+                <!-- BLOCO DE IMAGENS DE DEPOIMENTOS (CAMINHO LOCAL PARA O GIT) -->
+                <div class="mb-8">
+                    <img 
+                        src="imagem4.webp" 
+                        alt="Prints de conversas reais de alunas comemorando suas vendas." 
+                        class="w-full h-auto rounded-xl shadow-xl object-cover"
+                    >
+                </div>
+
+                <!-- BOTÃO DE DESTINO -->
+                <div>
+                    <button onclick="showLoadingPage()" 
+                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
+                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
+                        role="button">
+                        Quero ter os mesmos resultados!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 11: BARRA DE PROGRESSO (LOADING) -->
+        <!-- ========================================================= -->
+        <div id="loadingPage" class="hidden">
+            <div class="mt-20 md:mt-24 p-6">
+                <!-- TÍTULO -->
+                <header class="mb-12">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-snug text-gray-900">
+                        Você está a <span class="color-primary">poucos instantes</span> de começar a sua <span class="bg-primary text-white p-1 rounded-md">transformação!</span>
+                    </h1>
+                </header>
+
+                <!-- STATUS E BARRA -->
+                <div class="max-w-md mx-auto">
+                    <!-- Texto de Status e Porcentagem -->
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-base text-gray-800 font-medium">Preparando o seu plano exclusivo de artesã...</p>
+                        <p id="progressPercent" class="text-lg font-bold color-primary">0%</p>
+                    </div>
+
+                    <!-- Contêiner da Barra -->
+                    <div id="progressBarContainer">
+                        <div id="progressBarFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 12: CHECKOUT FINAL (PÁGINA DE VENDAS COMPLETA) -->
+        <!-- ========================================================= -->
+        <div id="finalCheckoutPage" class="hidden">
+             <div class="mt-8 md:mt-12 p-1">
+                
+                <!-- INÍCIO: AVISO E QUALIFICAÇÃO -->
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">O seu resultado está pronto!</h2>
+                    <p class="text-sm font-bold color-primary">LEIA COM ATENÇÃO ABAIXO</p>
+                </div>
+
+                <!-- Aviso de qualificação -->
+                <div class="warning-box mb-8 text-center">
+                    <p class="text-xl font-extrabold text-green-600 mb-2 flex items-center justify-center">
+                        <span class="text-2xl mr-2 mt-[-2px]">&#10003;</span> 
+                        <span class="text-lg md:text-xl"><span class="bg-green-300 p-1 rounded-md font-extrabold">Parabéns!</span> Você foi qualificada para o treinamento <strong class="color-primary">Porta Maternidade Lucrativo!</strong></span>
+                    </p>
+                </div>
+
+                <!-- TUDO QUE VAI APRENDER -->
+                <section class="mb-10 text-left">
+                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-4 text-center">
+                        Tudo que você vai <span class="color-primary">aprender no Treinamento</span>
+                        <br><strong class="font-bold color-primary">Porta Maternidade Lucrativo:</strong>
+                    </h2>
+                    <ul class="text-gray-800 space-y-3 max-w-sm mx-auto">
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Treinamento <strong class="font-bold">Completo</strong> em Vídeo de Fácil Entendimento;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Como criar os modelos de porta maternidade mais buscados pelas gestantes;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Moldes digitais <strong class="font-bold">100% prontos</strong> para imprimir sem complicação;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Lista de materiais baratinhos</strong> e onde comprar online;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Método simples para divulgar e <strong class="font-bold">vender todos os dias pelo Instagram</strong>;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Como faturar até <strong class="text-green-600 font-bold">R$ 3.000,00 por mês</strong> trabalhando de casa;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Planilha e Calculadora</strong> para precificar as suas peças e garantir lucro;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Acesso vitalício para assistir no seu tempo e quantas vezes quiser;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Grupo VIP de suporte com a <strong class="font-bold">Mari Farias</strong> para tirar todas as dúvidas;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Certificado de Conclusão</strong> incluso.</span></li>
+                    </ul>
+                </section>
+                
+                <!-- IMAGEM DO PRODUTO E BOTÃO -->
+                <section class="mb-10">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 text-center">
+                        O treinamento <span class="color-primary">+Completo</span>. Inscreva-se abaixo:
+                    </h2>
+                    
+                    <!-- IMAGEM DO PRODUTO (CAMINHO LOCAL PARA O GIT) -->
+                    <div class="mb-6">
+                        <img 
+                            src="imagem5.webp" 
+                            alt="Visual da plataforma do curso Porta Maternidade Lucrativo." 
+                            class="w-full h-auto rounded-xl shadow-2xl"
+                        >
+                    </div>
+
+                    <!-- BLOCO DE OFERTA 1 -->
+                    <div class="top-offer-bar">ÚLTIMA TURMA COM PREÇO PROMOCIONAL</div>
+                    <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-green-600 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                             <p class="text-lg font-bold text-gray-800 text-left">
+                                Treinamento <strong class="font-extrabold">Porta Maternidade Lucrativo</strong>
+                             </p>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500 line-through">de R$ 247,00 por</p>
+                                <p class="text-lg font-extrabold text-green-600">8x de <span class="text-2xl">R$ 5,27</span></p>
+                                <p class="text-xs text-gray-500">ou R$ 37,00 à vista</p>
+                            </div>
+                        </div>
+                        
+                        <a href="https://pay.kiwify.com.br/seu-link-aqui" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
+                            font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
+                            transform hover:scale-[1.02] active:scale-[0.98]">
+                            Quero viver trabalhando de casa!
+                        </a>
+                        <div class="discount-bar">Desconto válido por: <span id="timer1">00:00</span></div>
+                    </div>
+                </section>
+
+                <!-- BÔNUS GRATUITOS -->
+                <section class="mb-10 text-left">
+                    <h2 class="text-xl md:text-2xl font-extrabold text-green-600 mb-4 text-center bg-yellow-300 p-2 rounded-md">
+                        GRATUITO CASO SE INSCREVA HOJE!
+                    </h2>
+                    <p class="text-lg font-semibold text-gray-800 mb-4 text-center">
+                        Além do Treinamento você terá <strong class="color-primary">4 bônus exclusivos</strong>:
+                    </p>
+                    <ul class="text-gray-800 space-y-4 max-w-md mx-auto">
+                        <li class="check-item"><span class="text-3xl mr-2" role="img">🎁</span> <span class="flex-1">**BÔNUS 1** – <strong class="font-bold">Guirlandas de Bastidor Premium</strong>. Aprenda a fazer as guirlandas em MDF e tecido que são as favoritas das mamães minimalistas.</span></li>
+                        <li class="check-item"><span class="text-3xl mr-2" role="img">🎁</span> <span class="flex-1">**BÔNUS 2** – <strong class="font-bold">Modelos com Amigurumi</strong>. Como unir o crochê moderno às placas de madeira e inflar seu faturamento por peça.</span></li>
+                        <li class="check-item"><span class="text-3xl mr-2" role="img">🎁</span> <span class="flex-1">**BÔNUS 3** – <strong class="font-bold">Placas Pinus com LED</strong>. Adicione iluminação sofisticada às suas peças e cobre até 3x mais por cada enfeite.</span></li>
+                        <li class="check-item"><span class="text-3xl mr-2" role="img">🎁</span> <span class="flex-1">**BÔNUS 4** – <strong class="font-bold">Embalagem Encantadora</strong>. Como criar um unboxing inesquecível com cheirinho de bebê para fidelizar seus clientes.</span></li>
+                    </ul>
+                    <p class="text-center font-bold text-gray-900 mt-6">
+                        CLIQUE NO BOTÃO ACIMA E ADQUIRA O TREINAMENTO <strong class="color-primary">PORTA MATERNIDADE LUCRATIVO + 4 BÔNUS</strong>
+                    </p>
+                </section>
+
+                <!-- BLOCO DE OFERTA 2 -->
+                <section class="mb-10">
+                    <h3 class="text-xl font-bold color-primary mb-3">Restam apenas <span class="text-red-600 font-bold">3 vagas</span> com essa condition promocional.</h3>
+                     <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-green-600">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-lg font-bold text-gray-800 text-left">
+                                Treinamento <strong class="font-extrabold">Porta Maternidade Lucrativo</strong>
+                            </p>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500 line-through">de R$ 247,00 por</p>
+                                <p class="text-lg font-extrabold text-green-600">8x de <span class="text-2xl">R$ 5,27</span></p>
+                                <p class="text-xs text-gray-500">ou R$ 37,00 à vista</p>
+                            </div>
+                        </div>
+                        
+                        <a href="https://pay.kiwify.com.br/seu-link-aqui" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
+                            font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
+                            transform hover:scale-[1.02] active:scale-[0.98]">
+                            Quero viver trabalhando de casa!
+                        </a>
+                        <div class="discount-bar">Desconto válido por: <span id="timer2">00:00</span></div>
+                    </div>
+                </section>
+
+                <!-- DEPOIMENTOS E SEGURANÇA -->
+                <section class="text-center mb-10">
+                    <!-- SELO SEGURANÇA (CAMINHO LOCAL PARA O GIT) -->
+                    <div class="mb-4">
+                        <img src="imagem6.webp" alt="Compra segura certificada" class="mx-auto w-32 md:w-40">
+                    </div>
+
+                    <h2 class="text-2xl font-extrabold text-gray-900 mb-2">Quem faz recomenda!</h2>
+                    <p class="text-xl font-extrabold color-primary mb-3">Comunidade de Alunas Faturando</p>
+                    <p class="text-sm text-gray-600 mb-6">Mais de 94% das nossas alunas recomendam o curso para amigas e familiares devido à clareza e retorno rápido.</p>
+                    
+                    <!-- Bloco de Depoimento Renata (CAMINHO LOCAL PARA O GIT) -->
+                    <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-200 mb-6 text-left max-w-md mx-auto">
+                        <div class="flex items-center mb-3">
+                            <img src="imagem7.webp" alt="Foto da aluna Renata" class="rounded-full mr-3 w-10 h-10 object-cover">
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">Renata Epibanc</p>
+                                <p class="text-xs text-yellow-500">★★★★★</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-700 italic">
+                            "A Mari tem uma didática fantástica e o suporte é sensacional! Meus enfeites estão fazendo o maior sucesso e já estou cheia de encomendas para este mês. Mudou minha rotina em casa!"
+                        </p>
+                    </div>
+
+                    <a href="https://pay.kiwify.com.br/seu-link-aqui" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
+                        font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
+                        transform hover:scale-[1.02] active:scale-[0.98]">
+                        Quero viver trabalhando de casa!
+                    </a>
+                    <div class="discount-bar">Desconto válido por: <span id="timer3">00:00</span></div>
+                </section>
+                
+                <!-- GARANTIA -->
+                <section class="mb-10 text-center">
+                    <div class="warning-box bg-white border-primary shadow-xl p-6" style="border-color: #E15F84;">
+                        <!-- SELO GARANTIA (CAMINHO LOCAL PARA O GIT) -->
+                        <div class="mb-4">
+                            <img src="imagem8.webp" alt="Ícone de garantia incondicional" class="mx-auto w-20 h-20">
+                        </div>
+                        <h4 class="text-xl font-extrabold text-gray-900 mb-2">7 DIAS DE GARANTIA INCONDICIONAL!</h4>
+                        <p class="text-sm text-gray-700 mb-3">TESTE SEM COMPROMISSO. SE NÃO GOSTAR, DEVOLVEMOS CADA CENTAVO!</p>
+                        <p class="text-sm text-gray-600">Sua compra é totalmente segura e respaldada. Você pode entrar, assistir às primeiras aulas, e se achar que o método não é para você, basta pedir o reembolso em até 7 dias.</p>
+                    </div>
+                </section>
+
+                <!-- MODELOS E FOTOS -->
+                <section class="mb-10 text-center">
+                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-6">
+                        VEJA ALGUNS DOS <span class="color-primary">+100 MODELOS <span class="bg-primary text-white p-1 rounded-md">QUE APRENDERA!</span></span>
+                    </h2>
+                    
+                    <!-- IMAGEM GALERIA (CAMINHO LOCAL PARA O GIT) -->
+                    <div class="mb-6">
+                        <img 
+                            src="imagem9.webp" 
+                            alt="Lindos modelos prontos de porta maternidade." 
+                            class="w-full h-auto rounded-xl shadow-2xl"
+                        >
+                    </div>
+                </section>
+
+                <!-- SEÇÃO FINAL DE AUTORIA -->
+                <section class="mb-10 text-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary" style="border-top-color: #E15F84;">
+                        <!-- AVATAR MARI FARIAS (CAMINHO LOCAL PARA O GIT) -->
+                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #E15F84;">
+                        
+                        <h4 class="text-lg font-bold text-gray-900 mb-1">Mari Farias</h4>
+                        <p class="text-sm text-gray-600 mb-4">Criadora do Treinamento <strong class="font-bold color-primary">Porta Maternidade Lucrativo</strong>, artesã e especialista em maternidade desde 2019.</p>
+                        
+                        <p class="text-base text-gray-800 leading-relaxed mb-6">
+                            Comecei montando as minhas primeiras placas na mesa da sala para amigos próximos e me apaixonei. Hoje, ajudo milhares de mulheres a conquistarem liberdade financeira fazendo algo apaixonante e lucrativo! ✨
+                        </p>
+
+                         <div class="bg-red-100 text-red-700 text-sm font-semibold p-2 rounded-lg mb-4">
+                            Não deixe essa oportunidade passar!
+                        </div>
+                        
+                        <a href="https://pay.kiwify.com.br/seu-link-aqui" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
+                            font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
+                            transform hover:scale-[1.02] active:scale-[0.98]">
+                            Quero viver trabalhando de casa!
+                        </a>
+
+                        <!-- SELO PAGAMENTO INFERIOR (CAMINHO LOCAL PARA O GIT) -->
+                        <div class="mt-4">
+                            <img src="imagem11.webp" alt="Formas de pagamento seguras" class="mx-auto w-32 md:w-40">
+                        </div>
+                    </div>
+                </section>
+
+             </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 4;
+        let carouselTimer;
+
+        // Atualiza a posição visual dos slides e o estado dos pontos de navegação
+        function updateCarousel() {
+            const track = document.getElementById('carouselTrack');
+            if (track) {
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+            
+            const dots = document.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.remove('bg-white/50');
+                    dot.classList.add('bg-white', 'w-4'); // Estilo mais comprido para o slide ativo
+                } else {
+                    dot.classList.remove('bg-white', 'w-4');
+                    dot.classList.add('bg-white/50');
+                }
+            });
+        }
+
+        // Avança para o próximo slide
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+            resetCarouselTimer();
+        }
+
+        // Volta para o slide anterior
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+            resetCarouselTimer();
+        }
+
+        // Vai diretamente para um slide selecionado
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+            resetCarouselTimer();
+        }
+
+        // Reinicia o tempo do auto-play
+        function resetCarouselTimer() {
+            clearInterval(carouselTimer);
+            carouselTimer = setInterval(nextSlide, 4000);
+        }
+
+        // Habilita navegação por toque (gesto de deslizar)
+        function setupSwipe() {
+            const track = document.getElementById('carouselTrack');
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            if (track) {
+                track.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                track.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    const threshold = 50; // distância mínima de arraste
+                    if (touchStartX - touchEndX > threshold) {
+                        nextSlide(); // Deslizou para esquerda
+                    } else if (touchEndX - touchStartX > threshold) {
+                        prevSlide(); // Deslizou para direita
+                    }
+                }, { passive: true });
+            }
+        }
+
+        /**
+         * Inicializa o visual customizado dos checkboxes
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa as funções do carrossel
+            updateCarousel();
+            resetCarouselTimer();
+            setupSwipe();
+
+            function setupCheckboxes(containerId, isSingleChoice = false) {
+                const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
+                
+                checkboxes.forEach(checkbox => {
+                    const label = checkbox.closest('label');
+                    const textSpan = label.querySelector('.option-text');
+
+                    checkbox.addEventListener('change', () => {
+                        if (isSingleChoice && checkbox.checked) {
+                            // Se for escolha única, desmarca os outros
+                            checkboxes.forEach(otherCheckbox => {
+                                if (otherCheckbox !== checkbox) {
+                                    otherCheckbox.checked = false;
+                                    updateLabelVisual(otherCheckbox.closest('label'), false, otherCheckbox.closest('label').querySelector('.option-text'));
+                                }
+                            });
+                        }
+                        updateLabelVisual(label, checkbox.checked, textSpan);
+                    });
+
+                    updateLabelVisual(label, checkbox.checked, textSpan);
+                });
+            }
+
+            function updateLabelVisual(label, isChecked, textSpan) {
+                if (isChecked) {
+                    label.classList.remove('bg-button', 'hover:bg-[#FCE2E8]');
+                    label.classList.add('label-checked-bg');
+                    
+                    textSpan.classList.remove('text-gray-800');
+                    textSpan.classList.add('label-checked-text');
+                } else {
+                    label.classList.remove('label-checked-bg');
+                    label.classList.add('bg-button', 'hover:bg-[#FCE2E8]');
+                    
+                    textSpan.classList.remove('label-checked-text');
+                    textSpan.classList.add('text-gray-800');
+                }
+            }
+
+            setupCheckboxes('quizDoresPage', false);
+            setupCheckboxes('quizObjetivosPage', false);
+            setupCheckboxes('quizObjetivoFinalPage', true);
+        });
+
+
+        /**
+         * FUNÇÕES DE NAVEGAÇÃO
+         */
+        function hideAllViews() {
+            const views = ['landingPage', 'quizPage', 'quizCursoPage', 'quizTempoPage', 'quizDoresPage', 'quizObjetivosPage', 'quizObjetivoFinalPage', 'finalOfferPage', 'finalPage', 'testimonialsPage', 'loadingPage', 'finalCheckoutPage'];
+            views.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+        
+        function showView(viewId) {
+            hideAllViews();
+            const view = document.getElementById(viewId);
+            if (view) {
+                view.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showQuiz() {
+            showView('quizPage');
+        }
+        
+        function showQuestion2() {
+            showView('quizCursoPage');
+        }
+
+        // Avança da View 3 para a View 4
+        function showQuestion3() {
+            showView('quizTempoPage');
+        }
+        
+        function showQuestion4() {
+            showView('quizDoresPage');
+        }
+
+        function showQuestion5() {
+            showView('quizObjetivosPage');
+        }
+
+        function showQuestion6() {
+            showView('quizObjetivoFinalPage');
+        }
+
+        function showFinalOffer() {
+            showView('finalOfferPage');
+        }
+
+        function showFinalPage() {
+            showView('finalPage');
+        }
+
+        function showTestimonials() {
+            showView('testimonialsPage');
+        }
+        
+        let progressInterval;
+        const PROGRESS_DURATION = 3000; // 3 segundos
+
+        function startProgressBar() {
+            const fill = document.getElementById('progressBarFill');
+            const percentText = document.getElementById('progressPercent');
+            
+            fill.style.transition = 'none';
+            fill.style.width = '0%';
+            percentText.textContent = '0%';
+
+            fill.offsetWidth; 
+
+            fill.style.transition = `width ${PROGRESS_DURATION / 1000}s linear`;
+            fill.style.width = '100%';
+
+            let currentPercent = 0;
+            const stepTime = 30; 
+            const steps = PROGRESS_DURATION / stepTime;
+            const percentIncrement = 100 / steps;
+
+            progressInterval = setInterval(() => {
+                currentPercent += percentIncrement;
+                if (currentPercent >= 100) {
+                    currentPercent = 100;
+                    clearInterval(progressInterval);
+                }
+                percentText.textContent = `${Math.round(currentPercent)}%`;
+            }, stepTime);
+            
+            setTimeout(() => {
+                showFinalCheckout(); 
+            }, PROGRESS_DURATION); 
+        }
+
+        function showLoadingPage() {
+            showView('loadingPage');
+            startProgressBar(); 
+        }
+
+        function showFinalCheckout() {
+            showView('finalCheckoutPage');
+            startTimers(); 
+        }
+        
+        /**
+         * FUNÇÕES DE CONTAGEM REGRESSIVA (Cronômetros de 3 Minutos)
+         */
+        const TIMER_DURATION = 3 * 60; 
+        let timers = [];
+
+        function updateTimer(elementId, duration) {
+            let timer = duration;
+            const element = document.getElementById(elementId);
+            
+            function tick() {
+                const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
+                const seconds = String(timer % 60).padStart(2, '0');
+                if (element) {
+                    element.textContent = `${minutes}:${seconds}`;
+                }
+                
+                if (timer > 0) {
+                    timer--;
+                } else {
+                    clearInterval(timers[elementId]);
+                    if (element) {
+                        element.textContent = '00:00';
+                    }
+                }
+            }
+            
+            if (timers[elementId]) {
+                clearInterval(timers[elementId]);
+            }
+
+            tick();
+            timers[elementId] = setInterval(tick, 1000);
+        }
+
+        function startTimers() {
+            updateTimer('timer1', TIMER_DURATION); 
+            updateTimer('timer2', TIMER_DURATION); 
+            updateTimer('timer3', TIMER_DURATION); 
+        }
+
+        // Garante que apenas a View 1 (Landing Page) está visível ao carregar o documento
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('quizPage').classList.add('hidden');
+            document.getElementById('quizCursoPage').classList.add('hidden');
+            document.getElementById('quizTempoPage').classList.add('hidden');
+            document.getElementById('quizDoresPage').classList.add('hidden');
+            document.getElementById('quizObjetivosPage').classList.add('hidden');
+            document.getElementById('quizObjetivoFinalPage').classList.add('hidden');
+            document.getElementById('finalOfferPage').classList.add('hidden');
+            document.getElementById('finalPage').classList.add('hidden');
+            document.getElementById('testimonialsPage').classList.add('hidden');
+            document.getElementById('loadingPage').classList.add('hidden');
+            document.getElementById('finalCheckoutPage').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
