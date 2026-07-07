@@ -646,7 +646,7 @@
                 <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
                     <p>
                         O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
-                        Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                        Com <strong class="font-bold">menos de R$ 15,00</strong> in materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
                     </p>
                     <p>
                         Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
@@ -1032,19 +1032,48 @@
                     </div>
                 </section>
 
-                <!-- MODELOS E FOTOS -->
+                <!-- MODELOS E FOTOS (CARROSSEL) -->
                 <section class="mb-10 text-center">
                     <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-6">
                         VEJA ALGUNS DOS <span class="color-primary">QUE APRENDERÁ!</span>
                     </h2>
                     
-                    <!-- IMAGEM GALERIA -->
-                    <div class="mb-6">
-                        <img 
-                            src="imagem9.webp" 
-                            alt="Lindos modelos prontos de porta maternidade." 
-                            class="w-full h-auto rounded-xl shadow-2xl"
-                        >
+                    <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-2xl">
+                        <!-- Slides Container -->
+                        <div id="modelosTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
+                            <!-- Slide 1 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="modelo1.webp" alt="Modelo de Porta Maternidade 1" class="w-full h-auto block rounded-xl">
+                            </div>
+                            <!-- Slide 2 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="modelo2.webp" alt="Modelo de Porta Maternidade 2" class="w-full h-auto block rounded-xl">
+                            </div>
+                            <!-- Slide 3 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="modelo3.webp" alt="Modelo de Porta Maternidade 3" class="w-full h-auto block rounded-xl">
+                            </div>
+                            <!-- Slide 4 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="modelo4.webp" alt="Modelo de Porta Maternidade 4" class="w-full h-auto block rounded-xl">
+                            </div>
+                        </div>
+
+                        <!-- Botões de Navegação -->
+                        <button onclick="prevModelosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
+                            &#10094;
+                        </button>
+                        <button onclick="nextModelosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
+                            &#10095;
+                        </button>
+
+                        <!-- Pontos Indicadores -->
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                            <button onclick="goToModelosSlide(0)" class="modelos-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
+                            <button onclick="goToModelosSlide(1)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
+                            <button onclick="goToModelosSlide(2)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
+                            <button onclick="goToModelosSlide(3)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
+                        </div>
                     </div>
                 </section>
 
@@ -1224,6 +1253,75 @@
         }
 
 
+        // --- CONFIGURAÇÃO DO TERCEIRO CARROSSEL (MODELOS QUE APRENDERÁ) ---
+        let modelosSlide = 0;
+        const totalModelosSlides = 4;
+        let modelosTimer;
+
+        function updateModelosCarousel() {
+            const track = document.getElementById('modelosTrack');
+            if (track) {
+                track.style.transform = `translateX(-${modelosSlide * 100}%)`;
+            }
+
+            const dots = document.querySelectorAll('.modelos-dot');
+            dots.forEach((dot, index) => {
+                if (index === modelosSlide) {
+                    dot.classList.remove('bg-white/50');
+                    dot.classList.add('bg-white', 'w-4');
+                } else {
+                    dot.classList.remove('bg-white', 'w-4');
+                    dot.classList.add('bg-white/50');
+                }
+            });
+        }
+
+        function nextModelosSlide() {
+            modelosSlide = (modelosSlide + 1) % totalModelosSlides;
+            updateModelosCarousel();
+            resetModelosTimer();
+        }
+
+        function prevModelosSlide() {
+            modelosSlide = (modelosSlide - 1 + totalModelosSlides) % totalModelosSlides;
+            updateModelosCarousel();
+            resetModelosTimer();
+        }
+
+        function goToModelosSlide(index) {
+            modelosSlide = index;
+            updateModelosCarousel();
+            resetModelosTimer();
+        }
+
+        function resetModelosTimer() {
+            clearInterval(modelosTimer);
+            modelosTimer = setInterval(nextModelosSlide, 4000);
+        }
+
+        function setupModelosSwipe() {
+            const track = document.getElementById('modelosTrack');
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            if (track) {
+                track.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                track.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    const threshold = 50;
+                    if (touchStartX - touchEndX > threshold) {
+                        nextModelosSlide();
+                    } else if (touchEndX - touchStartX > threshold) {
+                        prevModelosSlide();
+                    }
+                }, { passive: true });
+            }
+        }
+
+
         // --- CONTROLE DE CHECKBOXES E INTERAÇÃO DO QUIZ ---
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializa carrossel inicial
@@ -1235,6 +1333,11 @@
             updateMembrosCarousel();
             resetMembrosTimer();
             setupMembrosSwipe();
+
+            // Inicializa carrossel dos modelos aprendidos
+            updateModelosCarousel();
+            resetModelosTimer();
+            setupModelosSwipe();
 
             function setupCheckboxes(containerId, isSingleChoice = false) {
                 const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
