@@ -168,49 +168,53 @@
                     Oi, tudo bem? Me chamo <strong class="color-primary">Mari Farias</strong> e trabalho com artesanato focado em maternidade.
                 </p>
                 <p class="font-bold">
-                Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
-                <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
-                montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
-            </p>
-        </section>
+                    Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
+                    <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
+                    montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
+                </p>
+            </section>
 
-        <!-- CARROSSEL DE IMAGENS (4 FOTOS) COM CAMINHO LOCAL PARA O GIT (SEM CAIXA DE BORDA ROSA) -->
-        <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-lg">
-            <!-- Slides Container -->
-            <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
-                <div class="w-full flex-shrink-0">
-                    <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-64 md:h-80 object-cover rounded-xl">
+            <!-- CARROSSEL DE IMAGENS SEM CORTE (SEM CAIXA DE BORDA ROSA) -->
+            <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-lg bg-[#FCF0F3]">
+                <!-- Slides Container -->
+                <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
+                    <!-- Slide 1 -->
+                    <div class="w-full flex-shrink-0 aspect-square md:aspect-[4/3] flex items-center justify-center">
+                        <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-full object-contain rounded-xl">
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="w-full flex-shrink-0 aspect-square md:aspect-[4/3] flex items-center justify-center">
+                        <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-full object-contain rounded-xl">
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="w-full flex-shrink-0 aspect-square md:aspect-[4/3] flex items-center justify-center">
+                        <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-full object-contain rounded-xl">
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="w-full flex-shrink-0 aspect-square md:aspect-[4/3] flex items-center justify-center">
+                        <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-full object-contain rounded-xl">
+                    </div>
                 </div>
-                <div class="w-full flex-shrink-0">
-                    <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-64 md:h-80 object-cover rounded-xl">
-                </div>
-                <div class="w-full flex-shrink-0">
-                    <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-64 md:h-80 object-cover rounded-xl">
-                </div>
-                <div class="w-full flex-shrink-0">
-                    <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-64 md:h-80 object-cover rounded-xl">
+
+                <!-- Botões de Navegação -->
+                <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
+                    &#10094;
+                </button>
+                <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
+                    &#10095;
+                </button>
+
+                <!-- Pontos Indicadores -->
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                    <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
+                    <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
+                    <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
+                    <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
                 </div>
             </div>
 
-            <!-- Botões de Navegação -->
-            <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Slide anterior">
-                &#10094;
-            </button>
-            <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Próximo slide">
-                &#10095;
-            </button>
-
-            <!-- Pontos Indicadores -->
-            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
-                <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
-                <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
-                <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
-                <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
-            </div>
-        </div>
-
-        <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
-        <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+            <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
+            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
                 <p>
                     E o <strong class="font-bold">melhor</strong>? Vou te ensinar <strong class="font-bold color-primary">agora</strong> como você também
                     pode fazer e conquistar a sua independência financeira! Clique no botão abaixo para começar.
@@ -640,7 +644,7 @@
                 <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
                     <p>
                         O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
-                        Com <strong class="font-bold">menos de R$ 15,00</strong> in materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                        Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
                     </p>
                     <p>
                         Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
@@ -824,7 +828,7 @@
 
                 <!-- BLOCO DE OFERTA 2 -->
                 <section class="mb-10">
-                    <h3 class="text-xl font-bold color-primary mb-3">Restam apenas <span class="text-red-600 font-bold">3 vagas</span> com essa condition promocional.</h3>
+                    <h3 class="text-xl font-bold color-primary mb-3">Restam apenas <span class="text-red-600 font-bold">3 vagas</span> com essa condição promocional.</h3>
                      <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-green-600">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-lg font-bold text-gray-800 text-left">
@@ -895,7 +899,7 @@
                 <!-- MODELOS E FOTOS -->
                 <section class="mb-10 text-center">
                     <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-6">
-                        VEJA ALGUNS DOS <span class="color-primary">+100 MODELOS <span class="bg-primary text-white p-1 rounded-md">QUE APRENDERA!</span></span>
+                        VEJA ALGUNS DOS <span class="color-primary">+100 MODELOS <span class="bg-primary text-white p-1 rounded-md">QUE APRENDERÁ!</span></span>
                     </h2>
                     
                     <!-- IMAGEM GALERIA (CAMINHO LOCAL PARA O GIT) -->
@@ -1111,10 +1115,12 @@
             showView('quizDoresPage');
         }
 
+        // Avança da View 5 para a View 6
         function showQuestion5() {
             showView('quizObjetivosPage');
         }
 
+        // Avança da View 6 para a View 7
         function showQuestion6() {
             showView('quizObjetivoFinalPage');
         }
