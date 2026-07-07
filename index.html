@@ -644,7 +644,7 @@
                 <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
                     <p>
                         O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
-                        Com <strong class="font-bold">menos de R$ 15,00</strong> in materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                        Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
                     </p>
                     <p>
                         Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
@@ -777,19 +777,44 @@
                     </ul>
                 </section>
                 
-                <!-- IMAGEM DO PRODUTO E BOTÃO -->
+                <!-- IMAGEM DO PRODUTO E BOTÃO (CARROSSEL DE MEMBROS) -->
                 <section class="mb-10">
                     <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 text-center">
                         O treinamento <span class="color-primary">+Completo</span>. Inscreva-se abaixo:
                     </h2>
                     
-                    <!-- IMAGEM DO PRODUTO -->
-                    <div class="mb-6">
-                        <img 
-                            src="imagem5.webp" 
-                            alt="Visual da plataforma do curso Porta Maternidade Lucrativo." 
-                            class="w-full h-auto rounded-xl shadow-2xl"
-                        >
+                    <!-- NOVO CARROSSEL DA ÁREA DE MEMBROS (TANGIBILIZAÇÃO) -->
+                    <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-2xl">
+                        <!-- Slides Container -->
+                        <div id="membrosTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
+                            <!-- Slide 1 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="membros1.webp" alt="Área de membros por dentro no celular" class="w-full h-auto block rounded-xl">
+                            </div>
+                            <!-- Slide 2 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="membros2.webp" alt="Vídeoaula de montagem prática por dentro" class="w-full h-auto block rounded-xl">
+                            </div>
+                            <!-- Slide 3 -->
+                            <div class="w-full flex-shrink-0">
+                                <img src="membros3.webp" alt="Download de moldes e lista de materiais de apoio" class="w-full h-auto block rounded-xl">
+                            </div>
+                        </div>
+
+                        <!-- Botões de Navegação -->
+                        <button onclick="prevMembrosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
+                            &#10094;
+                        </button>
+                        <button onclick="nextMembrosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
+                            &#10095;
+                        </button>
+
+                        <!-- Pontos Indicadores -->
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                            <button onclick="goToMembrosSlide(0)" class="membros-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
+                            <button onclick="goToMembrosSlide(1)" class="membros-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
+                            <button onclick="goToMembrosSlide(2)" class="membros-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
+                        </div>
                     </div>
 
                     <!-- BLOCO DE OFERTA 1 -->
@@ -836,7 +861,7 @@
 
                 <!-- BLOCO DE OFERTA 2 -->
                 <section class="mb-10">
-                    <h3 class="text-xl font-bold color-primary mb-3">Restam apenas <span class="text-red-600 font-bold">3 vagas</span> com essa condição promocional.</h3>
+                    <h3 class="text-xl font-bold color-primary mb-3">Restam apenas <span class="text-red-600 font-bold">3 vagas</span> com essa condition promocional.</h3>
                      <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-green-600">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-lg font-bold text-gray-800 text-left">
@@ -957,11 +982,11 @@
 
     <!-- JAVASCRIPT: LÓGICA E CONTROLES -->
     <script>
+        // --- CONFIGURAÇÃO CARROSSEL DA PRIMEIRA PÁGINA (HERO) ---
         let currentSlide = 0;
         const totalSlides = 4;
         let carouselTimer;
 
-        // Atualiza a posição visual dos slides e o estado dos pontos de navegação
         function updateCarousel() {
             const track = document.getElementById('carouselTrack');
             if (track) {
@@ -972,7 +997,7 @@
             dots.forEach((dot, index) => {
                 if (index === currentSlide) {
                     dot.classList.remove('bg-white/50');
-                    dot.classList.add('bg-white', 'w-4'); // Estilo mais comprido para o slide ativo
+                    dot.classList.add('bg-white', 'w-4');
                 } else {
                     dot.classList.remove('bg-white', 'w-4');
                     dot.classList.add('bg-white/50');
@@ -980,34 +1005,29 @@
             });
         }
 
-        // Avança para o próximo slide
         function nextSlide() {
             currentSlide = (currentSlide + 1) % totalSlides;
             updateCarousel();
             resetCarouselTimer();
         }
 
-        // Volta para o slide anterior
         function prevSlide() {
             currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
             updateCarousel();
             resetCarouselTimer();
         }
 
-        // Vai diretamente para um slide selecionado
         function goToSlide(index) {
             currentSlide = index;
             updateCarousel();
             resetCarouselTimer();
         }
 
-        // Reinicia o tempo do auto-play
         function resetCarouselTimer() {
             clearInterval(carouselTimer);
             carouselTimer = setInterval(nextSlide, 4000);
         }
 
-        // Habilita navegação por toque (gesto de deslizar)
         function setupSwipe() {
             const track = document.getElementById('carouselTrack');
             let touchStartX = 0;
@@ -1020,24 +1040,97 @@
 
                 track.addEventListener('touchend', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
-                    const threshold = 50; // distância mínima de arraste
+                    const threshold = 50;
                     if (touchStartX - touchEndX > threshold) {
-                        nextSlide(); // Deslizou para esquerda
+                        nextSlide();
                     } else if (touchEndX - touchStartX > threshold) {
-                        prevSlide(); // Deslizou para direita
+                        prevSlide();
                     }
                 }, { passive: true });
             }
         }
 
-        /**
-         * Inicializa o visual customizado dos checkboxes
-         */
+
+        // --- CONFIGURAÇÃO DO SEGUNDO CARROSSEL (ÁREA DE MEMBROS) ---
+        let membrosSlide = 0;
+        const totalMembrosSlides = 3;
+        let membrosTimer;
+
+        function updateMembrosCarousel() {
+            const track = document.getElementById('membrosTrack');
+            if (track) {
+                track.style.transform = `translateX(-${membrosSlide * 100}%)`;
+            }
+            
+            const dots = document.querySelectorAll('.membros-dot');
+            dots.forEach((dot, index) => {
+                if (index === membrosSlide) {
+                    dot.classList.remove('bg-white/50');
+                    dot.classList.add('bg-white', 'w-4');
+                } else {
+                    dot.classList.remove('bg-white', 'w-4');
+                    dot.classList.add('bg-white/50');
+                }
+            });
+        }
+
+        function nextMembrosSlide() {
+            membrosSlide = (membrosSlide + 1) % totalMembrosSlides;
+            updateMembrosCarousel();
+            resetMembrosTimer();
+        }
+
+        function prevMembrosSlide() {
+            membrosSlide = (membrosSlide - 1 + totalMembrosSlides) % totalMembrosSlides;
+            updateMembrosCarousel();
+            resetMembrosTimer();
+        }
+
+        function goToMembrosSlide(index) {
+            membrosSlide = index;
+            updateMembrosCarousel();
+            resetMembrosTimer();
+        }
+
+        function resetMembrosTimer() {
+            clearInterval(membrosTimer);
+            membrosTimer = setInterval(nextMembrosSlide, 4000);
+        }
+
+        function setupMembrosSwipe() {
+            const track = document.getElementById('membrosTrack');
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            if (track) {
+                track.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                track.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    const threshold = 50;
+                    if (touchStartX - touchEndX > threshold) {
+                        nextMembrosSlide();
+                    } else if (touchEndX - touchStartX > threshold) {
+                        prevMembrosSlide();
+                    }
+                }, { passive: true });
+            }
+        }
+
+
+        // --- CONTROLE DE CHECKBOXES E INTERAÇÃO DO QUIZ ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializa as funções do carrossel
+            // Inicializa carrossel inicial
             updateCarousel();
             resetCarouselTimer();
             setupSwipe();
+
+            // Inicializa carrossel da área de membros
+            updateMembrosCarousel();
+            resetMembrosTimer();
+            setupMembrosSwipe();
 
             function setupCheckboxes(containerId, isSingleChoice = false) {
                 const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
@@ -1048,7 +1141,6 @@
 
                     checkbox.addEventListener('change', () => {
                         if (isSingleChoice && checkbox.checked) {
-                            // Se for escolha única, desmarca os outros
                             checkboxes.forEach(otherCheckbox => {
                                 if (otherCheckbox !== checkbox) {
                                     otherCheckbox.checked = false;
@@ -1085,9 +1177,7 @@
         });
 
 
-        /**
-         * FUNÇÕES DE NAVEGAÇÃO
-         */
+        // --- NAVEGAÇÃO DE PÁGINAS ---
         function hideAllViews() {
             const views = ['landingPage', 'quizPage', 'quizCursoPage', 'quizTempoPage', 'quizDoresPage', 'quizObjetivosPage', 'quizObjetivoFinalPage', 'finalOfferPage', 'finalPage', 'testimonialsPage', 'loadingPage', 'finalCheckoutPage'];
             views.forEach(id => {
@@ -1115,7 +1205,6 @@
             showView('quizCursoPage');
         }
 
-        // Avança da View 3 para a View 4
         function showQuestion3() {
             showView('quizTempoPage');
         }
@@ -1124,12 +1213,10 @@
             showView('quizDoresPage');
         }
 
-        // Avança da View 5 para a View 6
         function showQuestion5() {
             showView('quizObjetivosPage');
         }
 
-        // Avança da View 6 para a View 7
         function showQuestion6() {
             showView('quizObjetivoFinalPage');
         }
@@ -1138,18 +1225,16 @@
             showView('finalOfferPage');
         }
 
-        // Avança para o custo da peça
         function showFinalPage() {
             showView('finalPage');
         }
 
-        // Avança para os comentários de alunas
         function showTestimonials() {
             showView('testimonialsPage');
         }
         
         let progressInterval;
-        const PROGRESS_DURATION = 3000; // 3 segundos
+        const PROGRESS_DURATION = 3000;
 
         function startProgressBar() {
             const fill = document.getElementById('progressBarFill');
@@ -1193,9 +1278,7 @@
             startTimers(); 
         }
         
-        /**
-         * FUNÇÕES DE CONTAGEM REGRESSIVA (Cronômetros de 3 Minutos)
-         */
+        // --- FUNÇÕES DE CONTAGEM REGRESSIVA (CRONÔMETROS) ---
         const TIMER_DURATION = 3 * 60; 
         let timers = [];
 
@@ -1234,7 +1317,7 @@
             updateTimer('timer3', TIMER_DURATION); 
         }
 
-        // Garante que apenas a View 1 (Landing Page) está visível ao carregar o documento
+        // Reseta o estado das páginas no carregamento inicial
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('quizPage').classList.add('hidden');
             document.getElementById('quizCursoPage').classList.add('hidden');
