@@ -1580,16 +1580,18 @@
         }
 
         // --- LÓGICA DE INTERAÇÃO DO FAQ (ACCORDION) ---
-        function toggleFAQ(element) {
-            const content = element.nextElementSibling;
-            const icon = element.querySelector('.faq-icon');
+        function toggleFaq(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
             
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                icon.textContent = '−';
-            } else {
-                content.classList.add('hidden');
-                icon.textContent = '+';
+            if (content && icon) {
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.textContent = '−';
+                } else {
+                    content.classList.add('hidden');
+                    icon.textContent = '+';
+                }
             }
         }
 
