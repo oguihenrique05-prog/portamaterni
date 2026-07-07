@@ -15,17 +15,17 @@
             font-family: 'Inter', sans-serif;
             background-color: #ffffff;
         }
-        /* Cor principal: rosa escuro sofisticado com alto contraste */
+        /* Cor principal: rosa neon vibrante de alto contraste */
         .color-primary {
-            color: #D45278; 
+            color: #FF3366; 
         }
-        /* Fundo principal: rosa delicado vibrante para botões e blocos em destaque */
+        /* Fundo principal: rosa neon para botões e blocos em destaque */
         .bg-primary {
-            background-color: #E15F84; 
+            background-color: #FF3366; 
         }
         /* Fundo suave: rosa clarinho/blush para os botões desmarcados do quiz */
         .bg-button {
-            background-color: #FCF0F3; 
+            background-color: #FFF0F3; 
         }
         .shadow-button {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -36,7 +36,7 @@
         }
         /* Estilo para os checkboxes reais customizados */
         input[type='checkbox'] {
-            --tw-ring-color: #E15F84; 
+            --tw-ring-color: #FF3366; 
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
@@ -44,12 +44,12 @@
             outline: none;
             transition: all 0.15s ease-in-out;
             border-radius: 0.375rem; /* rounded-md */
-            border: 2px solid #F3C1CD; /* Borda rosa sutil */
+            border: 2px solid #FFCCD5; /* Borda rosa sutil */
         }
 
         input[type='checkbox']:checked {
-            background-color: #E15F84;
-            border-color: #E15F84;
+            background-color: #FF3366;
+            border-color: #FF3366;
             /* Ícone de check branco */
             background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 00-1.414 0L7 8.586 4.207 5.793a1 1 0 00-1.414 1.414l3.5 3.5a1 1 0 001.414 0l5-5a1 1 0 000-1.414z'/%3e%3csvg>");
             background-size: 100% 100%;
@@ -59,8 +59,8 @@
 
         /* Estilo para o texto das labels quando o checkbox é checado */
         .label-checked-bg {
-            background-color: #E15F84;
-            box-shadow: 0 10px 15px -3px rgba(225, 95, 132, 0.2), 0 4px 6px -4px rgba(225, 95, 132, 0.1);
+            background-color: #FF3366;
+            box-shadow: 0 10px 15px -3px rgba(255, 51, 102, 0.2), 0 4px 6px -4px rgba(255, 51, 102, 0.1);
         }
         .label-checked-text {
             color: #ffffff !important;
@@ -71,7 +71,7 @@
         
         /* Estilos específicos para a barra de progresso */
         #progressBarContainer {
-            background-color: #FCE7EC; /* Fundo rosa claro */
+            background-color: #FFE5EC; /* Fundo rosa claro */
             height: 10px;
             border-radius: 5px;
             overflow: hidden;
@@ -79,7 +79,7 @@
         }
         #progressBarFill {
             height: 100%;
-            background-color: #E15F84;
+            background-color: #FF3366;
             width: 0%;
             transition: width 3s linear;
         }
@@ -124,18 +124,18 @@
 
         /* Estilo para a barra de desconto válido */
         .discount-bar {
-            background-color: #FEEEEE; 
+            background-color: #FFF0F3; 
             padding: 0.5rem;
             border-radius: 0.75rem;
             margin-top: 0.5rem;
             margin-bottom: 1.5rem;
-            color: #E53E3E; 
+            color: #FF3366; 
             font-weight: bold;
         }
 
         /* Estilo do bloco rosa no topo da oferta */
         .top-offer-bar {
-            background-color: #E15F84;
+            background-color: #FF3366;
             color: white;
             font-size: 0.875rem;
             font-weight: bold;
@@ -197,10 +197,10 @@
                 </div>
 
                 <!-- Botões de Navegação -->
-                <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
+                <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
                     &#10094;
                 </button>
-                <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
+                <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
                     &#10095;
                 </button>
 
@@ -224,7 +224,7 @@
             <!-- BOTÃO DE AÇÃO -->
             <div>
                 <button onclick="showQuiz()" class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                    font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                    font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                     transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                    role="button">
                     Quero descobrir como!
@@ -251,7 +251,7 @@
 
                     <!-- Opção 1 -->
                     <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Troféu">🏆</span>
                             <span class="text-lg font-semibold text-gray-800">Sim, já sou artesã profissional e quero diversificar.</span>
@@ -261,7 +261,7 @@
 
                     <!-- Opção 2 -->
                     <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Sorriso">😁</span>
                             <span class="text-lg font-semibold text-gray-800">Sim, faço por hobby ou para presentear conhecidos.</span>
@@ -271,7 +271,7 @@
 
                     <!-- Opção 3 -->
                     <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji Pensativo">🤔</span>
                             <span class="text-lg font-semibold text-gray-800">Não, mas quero aprender do zero para lucrar!</span>
@@ -281,7 +281,7 @@
 
                     <!-- Opção 4 -->
                     <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Olhos Cansados">😢</span>
                             <span class="text-lg font-semibold text-gray-800">Não, só gostaria de aprender para fazer para o meu próprio filho/família.</span>
@@ -311,7 +311,7 @@
 
                     <!-- Opção 1 -->
                     <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji Rindo">😂</span>
                             <span class="text-lg font-semibold text-gray-800">Nunca fiz, esse vai ser o meu primeiro contato.</span>
@@ -321,7 +321,7 @@
 
                     <!-- Opção 2 -->
                     <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Livro">📖</span>
                             <span class="text-lg font-semibold text-gray-800">Já fiz um curso, mas achei as técnicas muito difíceis ou caras.</span>
@@ -331,7 +331,7 @@
 
                     <!-- Opção 3 -->
                     <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
                             <span class="text-lg font-semibold text-gray-800">Já fiz vários cursos, mas ainda não consegui vender e ter lucro.</span>
@@ -359,7 +359,7 @@
                 <!-- OPÇÕES DE ESCOLHA -->
                 <main class="space-y-4">
                     <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
                             <span class="text-lg font-semibold text-gray-800">De 30 minutos a 1 hora por dia</span>
@@ -368,7 +368,7 @@
                     </button>
 
                     <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
                             <span class="text-lg font-semibold text-gray-800">2 a 4 horas por dia</span>
@@ -377,7 +377,7 @@
                     </button>
 
                     <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full">
+                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
                             <span class="text-lg font-semibold text-gray-800">Tenho o dia todo livre!</span>
@@ -388,6 +388,7 @@
                 </main>
             </div>
         </div>
+
         
         <!-- ========================================================= -->
         <!-- VIEW 5: QUIZ SOBRE DORES (MÚLTIPLA ESCOLHA) -->
@@ -407,7 +408,7 @@
                     
                     <!-- Checkbox 1 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Triste">😥</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra dinheiro para fazer as coisas que gosto</span>
@@ -417,7 +418,7 @@
 
                     <!-- Checkbox 2 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Congelado">🥶</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra tempo pra ficar com minha família</span>
@@ -427,7 +428,7 @@
 
                     <!-- Checkbox 3 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Chorando">😭</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Não consigo guardar dinheiro no fim do mês</span>
@@ -439,7 +440,7 @@
                     <div class="mt-8 pt-4">
                         <button onclick="showQuestion5()" 
                             class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                    transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                             role="button">
                             Continuar
@@ -468,7 +469,7 @@
                     
                     <!-- Checkbox 1 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Gostaria de conquistar independência financeira trabalhando de casa</span>
@@ -478,7 +479,7 @@
 
                     <!-- Checkbox 2 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Alvo">🎯</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero alavancar meus resultados no meu próprio negócio</span>
@@ -488,7 +489,7 @@
 
                     <!-- Checkbox 3 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Cowboy">🤠</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero faturar mais para dar conforto à minha família</span>
@@ -500,7 +501,7 @@
                     <div class="mt-8 pt-4">
                         <button onclick="showQuestion6()" 
                             class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                    transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                             role="button">
                             Continuar
@@ -529,7 +530,7 @@
                     
                     <!-- Opção 1 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Vou querer aprender com você como vender e lucrar muito com as peças.</span>
@@ -539,7 +540,7 @@
 
                     <!-- Opção 2 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Taça de Champanhe">🥂</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Alavancar o meu atelier de maternidade já existente.</span>
@@ -549,7 +550,7 @@
 
                     <!-- Opção 3 -->
                     <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FCE2E8] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
+                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
                         <span class="flex items-center text-left">
                             <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
                             <span class="text-lg font-semibold text-gray-800 option-text text-left">Apenas gostaria de fazer as peças como terapia ou presente.</span>
@@ -561,7 +562,7 @@
                     <div class="mt-8 pt-4">
                         <button onclick="showFinalOffer()" 
                             class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                    transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                             role="button">
                             Continuar
@@ -571,6 +572,7 @@
                 </main>
             </div>
         </div>
+
 
         <!-- ========================================================= -->
         <!-- VIEW 8: PÁGINA DE VENDA (ELIMINAÇÃO DE OBJEÇÃO) -->
@@ -610,7 +612,7 @@
                 <div>
                     <button onclick="showFinalPage()" 
                         class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                         role="button">
                         Quero aprender o passo a passo!
@@ -644,7 +646,7 @@
                 <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
                     <p>
                         O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
-                        Com <strong class="font-bold">menos de R$ 15,00</strong> in materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                        Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
                     </p>
                     <p>
                         Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
@@ -655,7 +657,7 @@
                 <div>
                      <button onclick="showTestimonials()" 
                         class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                         role="button">
                         Continuar
@@ -663,6 +665,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- ========================================================= -->
         <!-- VIEW 10: DEPOIMENTOS (PROVA SOCIAL DINÂMICA DA ÁREA DE MEMBROS) -->
@@ -685,7 +688,7 @@
                         src="imagem4.webp" 
                         alt="Comentários e depoimentos reais da comunidade de alunas" 
                         class="w-full h-auto rounded-xl shadow-xl object-cover"
-                        onerror="this.onerror=null; this.src='https://placehold.co/600x600/FCF0F3/D45278?text=PRINTS+DEPOIMENTOS';"
+                        onerror="this.onerror=null; this.src='https://placehold.co/600x600/FFF0F3/FF3366?text=PRINTS+DEPOIMENTOS';"
                     >
                 </div>
 
@@ -693,7 +696,7 @@
                 <div>
                     <button onclick="showLoadingPage()" 
                         class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#C23B5E] transition duration-300 ease-in-out 
+                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
                                transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
                         role="button">
                         Quero ter os mesmos resultados!
@@ -729,6 +732,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- ========================================================= -->
         <!-- VIEW 12: CHECKOUT FINAL (PÁGINA DE VENDAS COMPLETA) -->
@@ -802,10 +806,10 @@
                         </div>
 
                         <!-- Botões de Navegação -->
-                        <button onclick="prevMembrosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
+                        <button onclick="prevMembrosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
                             &#10094;
                         </button>
-                        <button onclick="nextMembrosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
+                        <button onclick="nextMembrosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
                             &#10095;
                         </button>
 
@@ -866,6 +870,7 @@
                     </div>
                 </section>
 
+
                 <!-- SEÇÃO DE DUAS OFERTAS: R$ 17 (APOSTILA) VS R$ 27 (KIT PREMIUM) -->
                 <section class="mb-12 px-2">
                     <div class="text-center mb-8">
@@ -876,13 +881,13 @@
                     <div class="flex flex-col gap-8 max-w-sm mx-auto">
                         
                         <!-- OFERTA 1: APENAS APOSTILA (R$ 17) -->
-                        <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-gray-300 relative text-center">
+                        <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-gray-300 relative text-center">
                             <h4 class="text-xl font-black text-gray-500 uppercase tracking-wider mb-1">APENAS APOSTILA</h4>
                             <p class="text-xs font-bold text-gray-400 uppercase mb-4">LEVE APENAS OS MOLDES E INSTRUÇÕES ESCRITAS</p>
                             
                             <div class="mb-4">
                                 <span class="text-sm text-gray-400 line-through">De R$ 97</span>
-                                <div class="text-4xl font-black text-gray-800 my-1">R$ 17</div>
+                                <div class="text-5xl font-black text-gray-800 my-1">R$ 17</div>
                                 <span class="text-xs font-black text-gray-500 uppercase">PAGAMENTO ÚNICO SEM MENSALIDADES</span>
                             </div>
 
@@ -921,20 +926,22 @@
                             <div class="discount-bar mt-4">Desconto válido por: <span id="timer1">00:00</span></div>
                         </div>
 
-                        <!-- OFERTA 2: KIT PREMIUM (R$ 27) - RECOMENDADO -->
-                        <div class="bg-white p-6 rounded-2xl shadow-2xl border-4 border-[#E15F84] relative text-center pt-8">
+                        <!-- OFERTA 2: KIT PREMIUM (R$ 27) - RECOMENDADO (Fidelizado para o estilo neon e com os textos do print) -->
+                        <div class="bg-white p-6 rounded-[32px] shadow-2xl border-4 border-[#FF3366] relative text-center pt-8">
                             <!-- BADGE DE RECOMENDADO -->
-                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#E15F84] text-white font-black text-xs px-4 py-1.5 rounded-full shadow-md uppercase tracking-wider">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF3366] text-white font-black text-xs px-6 py-2 rounded-full shadow-md uppercase tracking-wider">
                                 RECOMENDADO
                             </div>
 
-                            <h4 class="text-2xl font-black color-primary uppercase tracking-wider mb-1">KIT PREMIUM</h4>
-                            <p class="text-xs font-extrabold text-[#D45278] uppercase mb-4">A EXPERIÊNCIA COMPLETA PARA FATURAR ALTO!</p>
+                            <h4 class="text-2xl font-black text-[#FF3366] uppercase tracking-wider mb-1">KIT PREMIUM</h4>
+                            <p class="text-xs font-extrabold text-[#E62E59] uppercase tracking-wider mb-4 leading-relaxed">
+                                A EXPERIÊNCIA COMPLETA PARA FATURAR ALTO!
+                            </p>
                             
                             <div class="mb-4">
                                 <span class="text-sm text-gray-400 line-through">De R$ 297</span>
-                                <div class="text-5xl font-black color-primary my-1">R$ 27</div>
-                                <span class="text-xs font-black text-red-600 uppercase">TUDO LIBERADO IMEDIATAMENTE</span>
+                                <div class="text-5xl font-black text-[#FF3366] my-1">R$ 27</div>
+                                <span class="text-xs font-black text-[#E62E59] uppercase">TUDO LIBERADO IMEDIATAMENTE</span>
                             </div>
 
                             <hr class="border-rose-100 my-5">
@@ -953,19 +960,19 @@
                                     <span>Grupo VIP de Suporte no WhatsApp (Mari Farias)</span>
                                 </li>
                                 <li class="flex items-start text-gray-800">
-                                    <span class="text-[#E15F84] font-extrabold mr-2">★</span>
+                                    <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 1: Guirlandas de Bastidor Premium</span>
                                 </li>
                                 <li class="flex items-start text-gray-800">
-                                    <span class="text-[#E15F84] font-extrabold mr-2">★</span>
+                                    <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 2: Modelos com Amigurumi</span>
                                 </li>
                                 <li class="flex items-start text-gray-800">
-                                    <span class="text-[#E15F84] font-extrabold mr-2">★</span>
+                                    <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 3: Placas Pinus com LED</span>
                                 </li>
                                 <li class="flex items-start text-gray-800">
-                                    <span class="text-[#E15F84] font-extrabold mr-2">★</span>
+                                    <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 4: Unboxing & Embalagem Encantadora</span>
                                 </li>
                             </ul>
@@ -1014,7 +1021,7 @@
                 
                 <!-- GARANTIA -->
                 <section class="mb-10 text-center">
-                    <div class="warning-box bg-white border-primary shadow-xl p-6" style="border-color: #E15F84;">
+                    <div class="warning-box bg-white border-primary shadow-xl p-6" style="border-color: #FF3366;">
                         <!-- SELO GARANTIA -->
                         <div class="mb-4">
                             <img src="imagem8.webp" alt="Ícone de garantia incondicional" class="mx-auto w-20 h-20">
@@ -1028,7 +1035,7 @@
                 <!-- MODELOS E FOTOS -->
                 <section class="mb-10 text-center">
                     <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-6">
-                        VEJA ALGUNS DOS <span class="color-primary">+100 MODELOS <span class="bg-primary text-white p-1 rounded-md">QUE APRENDERÁ!</span></span>
+                        VEJA ALGUNS DOS <span class="color-primary">QUE APRENDERÁ!</span>
                     </h2>
                     
                     <!-- IMAGEM GALERIA -->
@@ -1043,9 +1050,9 @@
 
                 <!-- SEÇÃO FINAL DE AUTORIA -->
                 <section class="mb-10 text-center">
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary" style="border-top-color: #E15F84;">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary" style="border-top-color: #FF3366;">
                         <!-- AVATAR MARI FARIAS -->
-                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #E15F84;">
+                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #FF3366;">
                         
                         <h4 class="text-lg font-bold text-gray-900 mb-1">Mari Farias</h4>
                         <p class="text-sm text-gray-600 mb-4">Criadora do Treinamento <strong class="font-bold color-primary">Porta Maternidade Lucrativo</strong>, artesã e especialista em maternidade desde 2019.</p>
@@ -1075,6 +1082,7 @@
         </div>
 
     </div>
+
 
     <!-- JAVASCRIPT: LÓGICA E CONTROLES -->
     <script>
@@ -1253,14 +1261,14 @@
 
             function updateLabelVisual(label, isChecked, textSpan) {
                 if (isChecked) {
-                    label.classList.remove('bg-button', 'hover:bg-[#FCE2E8]');
+                    label.classList.remove('bg-button', 'hover:bg-[#FFCCD5]');
                     label.classList.add('label-checked-bg');
                     
                     textSpan.classList.remove('text-gray-800');
                     textSpan.classList.add('label-checked-text');
                 } else {
                     label.classList.remove('label-checked-bg');
-                    label.classList.add('bg-button', 'hover:bg-[#FCE2E8]');
+                    label.classList.add('bg-button', 'hover:bg-[#FFCCD5]');
                     
                     textSpan.classList.remove('label-checked-text');
                     textSpan.classList.add('text-gray-800');
