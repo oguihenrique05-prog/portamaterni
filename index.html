@@ -168,51 +168,49 @@
                     Oi, tudo bem? Me chamo <strong class="color-primary">Mari Farias</strong> e trabalho com artesanato focado em maternidade.
                 </p>
                 <p class="font-bold">
-                    Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
-                    <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
-                    montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
-                </p>
-            </section>
+                Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
+                <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
+                montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
+            </p>
+        </section>
 
-            <!-- CARROSSEL DE IMAGENS (4 FOTOS) COM CAMINHO LOCAL PARA O GIT -->
-            <div class="mb-8 p-4 bg-primary rounded-xl shadow-2xl relative overflow-hidden">
-                <div class="relative w-full overflow-hidden rounded-lg">
-                    <!-- Slides Container -->
-                    <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
-                        <div class="w-full flex-shrink-0">
-                            <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-64 md:h-80 object-cover rounded-lg">
-                        </div>
-                        <div class="w-full flex-shrink-0">
-                            <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-64 md:h-80 object-cover rounded-lg">
-                        </div>
-                        <div class="w-full flex-shrink-0">
-                            <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-64 md:h-80 object-cover rounded-lg">
-                        </div>
-                        <div class="w-full flex-shrink-0">
-                            <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-64 md:h-80 object-cover rounded-lg">
-                        </div>
-                    </div>
-
-                    <!-- Botões de Navegação -->
-                    <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Slide anterior">
-                        &#10094;
-                    </button>
-                    <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Próximo slide">
-                        &#10095;
-                    </button>
-
-                    <!-- Pontos Indicadores -->
-                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
-                        <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
-                        <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
-                        <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
-                        <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
-                    </div>
+        <!-- CARROSSEL DE IMAGENS (4 FOTOS) COM CAMINHO LOCAL PARA O GIT (SEM CAIXA DE BORDA ROSA) -->
+        <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-lg">
+            <!-- Slides Container -->
+            <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
+                <div class="w-full flex-shrink-0">
+                    <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-64 md:h-80 object-cover rounded-xl">
+                </div>
+                <div class="w-full flex-shrink-0">
+                    <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-64 md:h-80 object-cover rounded-xl">
+                </div>
+                <div class="w-full flex-shrink-0">
+                    <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-64 md:h-80 object-cover rounded-xl">
+                </div>
+                <div class="w-full flex-shrink-0">
+                    <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-64 md:h-80 object-cover rounded-xl">
                 </div>
             </div>
 
-            <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
-            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+            <!-- Botões de Navegação -->
+            <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Slide anterior">
+                &#10094;
+            </button>
+            <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#D45278] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90" aria-label="Próximo slide">
+                &#10095;
+            </button>
+
+            <!-- Pontos Indicadores -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
+                <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
+                <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
+                <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
+                <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
+            </div>
+        </div>
+
+        <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
+        <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
                 <p>
                     E o <strong class="font-bold">melhor</strong>? Vou te ensinar <strong class="font-bold color-primary">agora</strong> como você também
                     pode fazer e conquistar a sua independência financeira! Clique no botão abaixo para começar.
