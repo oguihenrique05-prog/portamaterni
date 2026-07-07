@@ -679,141 +679,14 @@
                     </p>
                 </header>
 
-                <!-- CONTEÚDO SIMULADO: ÁREA DE MEMBROS (VÍDEO DA AULA) -->
-                <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl relative mb-6">
-                    <!-- Overlay de Vídeo Aula -->
-                    <div class="absolute inset-0 bg-black/45 flex flex-col justify-between p-4 z-10 text-left pointer-events-none">
-                        <span class="bg-primary/90 text-white text-xs font-bold px-2 py-1 rounded w-fit uppercase tracking-wider">MÓDULO 3 - AULA PRÁTICA</span>
-                        <div class="flex items-center space-x-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                            <span class="text-white text-sm font-semibold shadow-sm">Demonstração: Montando Guirlanda de Ursinho</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Botão de Play central fictício -->
-                    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                        <div class="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center transform hover:scale-110 transition duration-300">
-                            <svg class="w-8 h-8 text-[#E15F84] fill-current ml-1" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Imagem que representa o frame de vídeo da aula -->
+                <!-- APENAS A IMAGEM ÚNICA (JÁ POSSUI O LAYOUT DO VÍDEO E COMENTÁRIOS EMBUTIDOS) -->
+                <div class="mb-8">
                     <img 
                         src="imagem4.webp" 
-                        alt="Preview da aula prática de montagem" 
-                        class="w-full h-auto aspect-video object-cover brightness-95"
+                        alt="Comentários e depoimentos reais da comunidade de alunas" 
+                        class="w-full h-auto rounded-xl shadow-xl object-cover"
+                        onerror="this.onerror=null; this.src='https://placehold.co/600x600/FCF0F3/D45278?text=PRINTS+DEPOIMENTOS';"
                     >
-                    
-                    <!-- Barra de progresso do player de vídeo simulado -->
-                    <div class="h-1.5 w-full bg-gray-700 relative">
-                        <div class="absolute left-0 top-0 h-full bg-[#E15F84]" style="width: 65%;"></div>
-                    </div>
-                </div>
-
-                <!-- SEÇÃO SIMULADA DE COMENTÁRIOS DE CURSO -->
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-8 text-left shadow-inner">
-                    <div class="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
-                        <h3 class="text-base font-bold text-gray-800 flex items-center">
-                            <span class="mr-2">💬</span> Comentários da Aula (148)
-                        </h3>
-                        <span class="text-xs text-gray-400 font-medium">Ordenado por Relevância</span>
-                    </div>
-
-                    <!-- Caixa para simular interação -->
-                    <div class="flex items-center space-x-3 mb-6 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
-                        <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-xs font-bold text-[#E15F84]">EU</div>
-                        <input type="text" placeholder="Escreva uma dúvida ou feedback sobre a aula..." class="flex-1 bg-transparent text-sm outline-none text-gray-600 cursor-not-allowed" disabled>
-                        <button class="bg-[#E15F84] text-white text-xs px-3 py-1.5 rounded-lg font-bold opacity-80 cursor-not-allowed" disabled>Enviar</button>
-                    </div>
-
-                    <!-- Comentário 1: Jéssica -->
-                    <div class="border-b border-gray-100 pb-4 mb-4">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-[#FCF0F3] flex items-center justify-center font-bold text-[#D45278] border border-pink-100">
-                                JL
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-bold text-gray-900 flex items-center">
-                                        Jéssica Lima <span class="ml-1.5 bg-green-100 text-green-700 text-[10px] font-extrabold px-1 rounded uppercase tracking-wide">Aluna</span>
-                                    </span>
-                                    <span class="text-xs text-gray-400">há 2 horas</span>
-                                </div>
-                                <p class="text-sm text-gray-700 mt-1.5 leading-relaxed">
-                                    Mari do céu, surreal! Acabei de finalizar minha primeira guirlanda seguindo o passo a passo da aula. Gastei exatamente <strong class="color-primary font-bold">R$ 14,80</strong> de material básico e já vendi por <strong class="text-green-600 font-extrabold">R$ 180,00!</strong> A mãe ficou simplesmente apaixonada, postei e vendeu em minutos! 😍💸
-                                </p>
-                                <div class="flex items-center space-x-4 mt-2.5 text-xs text-gray-400 font-semibold">
-                                    <button class="hover:text-[#E15F84] flex items-center"><span class="mr-1">👍</span> 42</button>
-                                    <button class="hover:text-[#E15F84]">Responder</button>
-                                </div>
-                                
-                                <!-- Resposta da Produtora -->
-                                <div class="mt-3 bg-white p-3 rounded-xl border border-pink-100 flex items-start space-x-2">
-                                    <img src="imagem10.webp" alt="Mari Farias" class="w-7 h-7 rounded-full object-cover border border-pink-300">
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-gray-900 flex items-center">
-                                                Mari Farias <span class="ml-1.5 bg-[#E15F84] text-white text-[9px] font-extrabold px-1 rounded uppercase tracking-wide">Professora</span>
-                                            </span>
-                                        </div>
-                                        <p class="text-xs text-gray-700 mt-1 leading-relaxed">
-                                            Parabéns, Jéssica! É exatamente isso, a margem de lucro desse mercado infantil é fantástica porque o feltro e MDF são materiais muito em conta. O capricho ficou nota 10! Que seja a primeira de muitas vendas! 🚀❤
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Comentário 2: Amanda -->
-                    <div class="border-b border-gray-100 pb-4 mb-4">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-[#FCF0F3] flex items-center justify-center font-bold text-[#D45278] border border-pink-100">
-                                AC
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-bold text-gray-900 flex items-center">
-                                        Amanda Costa <span class="ml-1.5 bg-green-100 text-green-700 text-[10px] font-extrabold px-1 rounded uppercase tracking-wide">Aluna</span>
-                                    </span>
-                                    <span class="text-xs text-gray-400">há 5 horas</span>
-                                </div>
-                                <p class="text-sm text-gray-700 mt-1.5 leading-relaxed">
-                                    Meninas, o método de vendas da Mari funciona de verdade! Montei o kit completo de Bastidor de Pinus + 3 chaveiros combinando pro quartinho do Bernardo. Gastei uns <strong class="font-semibold text-gray-900">R$ 28 no total</strong> e fechei o kit ontem por <strong class="text-green-600 font-extrabold">R$ 220,00 à vista!</strong> Já recuperei o valor do curso com folga!
-                                </p>
-                                <div class="flex items-center space-x-4 mt-2.5 text-xs text-gray-400 font-semibold">
-                                    <button class="hover:text-[#E15F84] flex items-center"><span class="mr-1">👍</span> 29</button>
-                                    <button class="hover:text-[#E15F84]">Responder</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Comentário 3: Beatriz -->
-                    <div class="pb-2">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-[#FCF0F3] flex items-center justify-center font-bold text-[#D45278] border border-pink-100">
-                                BS
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-bold text-gray-900 flex items-center">
-                                        Beatriz Souza <span class="ml-1.5 bg-green-100 text-green-700 text-[10px] font-extrabold px-1 rounded uppercase tracking-wide">Aluna</span>
-                                    </span>
-                                    <span class="text-xs text-gray-400">há 1 dia</span>
-                                </div>
-                                <p class="text-sm text-gray-700 mt-1.5 leading-relaxed">
-                                    Tinha muito receio de não conseguir por não ter máquina de costura ou experiência com feltro. Mas os moldes facilitam tudo. Fiz o modelo de feltro na mesa da cozinha à noite. Vendi por <strong class="text-green-600 font-bold">R$ 150,00</strong> para uma colega de trabalho da minha mãe. Já estou cortando as peças da segunda encomenda! 🥰
-                                </p>
-                                <div class="flex items-center space-x-4 mt-2.5 text-xs text-gray-400 font-semibold">
-                                    <button class="hover:text-[#E15F84] flex items-center"><span class="mr-1">👍</span> 17</button>
-                                    <button class="hover:text-[#E15F84]">Responder</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- BOTÃO DE DESTINO -->
