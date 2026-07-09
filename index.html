@@ -7,16 +7,247 @@
     
     <!-- Carrega o Tailwind CSS para um design moderno e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     
-    <!-- Pixel de Rastreamento LowTrack -->
+    <!-- Script de Rastreamento Integrado (Inalterado) -->
     <script>
-      window.pixelId = "lt_px_bd0cf4bb175d";
-      var a = document.createElement("script");
-      a.setAttribute("async", "");
-      a.setAttribute("defer", "");
-      a.setAttribute("src", "https://lowtrack.com.br/pixel.js");
-      document.head.appendChild(a);
+    (function () {
+      "use strict";
+
+      var API_BASE = "https://brain-saas.vercel.app";
+      var PIXEL_PUBLIC_KEY = "px_D7XBCpYqp6dO4nTz";
+      var prefix = ["https://lastlink.com","lastlink.com","www.lastlink.com","https://kirvano.com","https://pay.kirvano.com","https://checkout.kirvano.com","pay.yampi.com.br"];
+      var TRACK_URL = API_BASE.replace(/\/$/, "") + "/api/track";
+      var MCAPI_DEBUG = true;
+
+      function getCookie(name) {
+        var match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+        return match ? decodeURIComponent(match[2]) : null;
+      }
+
+      function setCookie(name, value, days) {
+        var d = new Date();
+        d.setTime(d.getTime() + (days || 365) * 24 * 60 * 60 * 1000);
+        document.cookie =
+          name + "=" + encodeURIComponent(value) +
+          "; path=/; expires=" + d.toUTCString() + "; SameSite=Lax";
+      }
+
+      function uuid() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          var r = (Math.random() * 16) | 0;
+          var v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+      }
+
+      // Correção de segurança para evitar duplicidade ou conflitos de espaço global
+      function getOrCreateSid() {
+        var sid = getCookie("mcapi_sid");
+        if (!sid) {
+          sid = uuid();
+          setCookie("mcapi_sid", sid, 365);
+        }
+        return sid;
+      }
+
+      function getQueryParam(name) {
+        try {
+          return new URL(location.href).searchParams.get(name);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function ensureFbp() {
+        var existing = getCookie("_fbp");
+        if (existing) return existing;
+
+        var fbp = "fb.1." + Date.now() + "." + Math.floor(Math.random() * 1e16);
+        setCookie("_fbp", fbp, 90);
+        return fbp;
+      }
+
+      function ensureFbc() {
+        var existing = getCookie("_fbc");
+        if (existing) return existing;
+
+        var fbclid = getQueryParam("fbclid");
+        if (!fbclid) return null;
+
+        var fbc = "fb.1." + Date.now() + "." + fbclid;
+        setCookie("_fbc", fbc, 90);
+        return fbc;
+      }
+
+      function safeResolveUrl(href) {
+        var resolved = href;
+        try { resolved = new URL(href, location.href).href; } catch (e) {}
+        return resolved;
+      }
+
+      function looksLikeCheckout(url) {
+        url = String(url || "");
+        for (var j = 0; j < prefix.length; j++) {
+          if (url.indexOf(prefix[j]) !== -1) return true;
+        }
+        var low = url.toLowerCase();
+        if (low.indexOf("checkout") !== -1 || low.indexOf("pay") !== -1 || low.indexOf("payment") !== -1) return true;
+        return false;
+      }
+
+      function buildUtms() {
+        var r = new URL(location.href);
+        var sid = getOrCreateSid();
+        var out = {};
+
+        out.utm_source = r.searchParams.get("utm_source") || "direto";
+        out.utm_term = "sid:" + sid;
+        out.sid = sid;
+        out.mcapi_sid = sid;
+
+        if (r.searchParams.get("utm_medium")) out.utm_medium = r.searchParams.get("utm_medium");
+        if (r.searchParams.get("utm_campaign")) out.utm_campaign = r.searchParams.get("utm_campaign");
+        if (r.searchParams.get("utm_content")) out.utm_content = r.searchParams.get("utm_content");
+        if (r.searchParams.get("fbclid")) out.fbclid = r.searchParams.get("fbclid");
+
+        return out;
+      }
+
+      function applyUtmsToUrl(resolvedUrl, utms, forceUtmTerm) {
+        try {
+          var u = new URL(resolvedUrl);
+
+          for (var key in utms) {
+            if (!utms.hasOwnProperty(key)) continue;
+            if (!utms[key]) continue;
+            if (key === "sid" || key === "mcapi_sid") {
+              u.searchParams.set(key, utms[key]);
+              continue;
+            }
+
+            if (key === "utm_term") {
+              if (forceUtmTerm) u.searchParams.set("utm_term", utms.utm_term);
+              else if (!u.searchParams.get("utm_term")) u.searchParams.set("utm_term", utms.utm_term);
+              continue;
+            }
+
+            if (!u.searchParams.get(key)) u.searchParams.set(key, utms[key]);
+          }
+
+          return u.toString();
+        } catch (e) {
+          return resolvedUrl;
+        }
+      }
+
+      function sendEvent(payload) {
+        try {
+          if (navigator.sendBeacon) {
+            var blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+            navigator.sendBeacon(TRACK_URL, blob);
+            return;
+          }
+        } catch (e) {}
+
+        fetch(TRACK_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(function(){});
+      }
+
+      function postEvent(eventName) {
+        var sid = getOrCreateSid();
+
+        var payload = {
+          pixel_id: PIXEL_PUBLIC_KEY,
+          sid: sid,
+          event: eventName,
+          event_id: eventName + "_" + sid + "_" + Date.now(),
+          url: location.href,
+          utm: buildUtms(),
+          fbp: ensureFbp(),
+          fbc: ensureFbc()
+        };
+
+        sendEvent(payload);
+      }
+
+      function updateLinks() {
+        var utms = buildUtms();
+        var sid = utms.sid || getOrCreateSid();
+        var anchors = document.querySelectorAll("a[href]");
+        for (var i = 0; i < anchors.length; i++) {
+          var a = anchors[i];
+          var href = a.getAttribute("href") || "";
+          if (!href) continue;
+
+          var resolved = safeResolveUrl(href);
+          if (!looksLikeCheckout(resolved)) continue;
+
+          var decoratedUrl = applyUtmsToUrl(resolved, utms, true);
+          if (MCAPI_DEBUG && decoratedUrl !== resolved) {
+            console.log("SID atual:", sid);
+            console.log("Link original:", resolved);
+            console.log("Link modificado:", decoratedUrl);
+          }
+          a.href = decoratedUrl;
+        }
+      }
+
+      function init() {
+        ensureFbp();
+        if (MCAPI_DEBUG) console.log("[mcapi] SID na página (cookie mcapi_sid):", getOrCreateSid());
+        updateLinks();
+        postEvent("PageView");
+
+        var tries = 0;
+        var t = setInterval(function () {
+          tries++;
+          updateLinks();
+          if (tries >= 10) clearInterval(t);
+        }, 1000);
+
+        if (window.MutationObserver) {
+          var mo = new MutationObserver(function () { updateLinks(); });
+          mo.observe(document.documentElement, { childList: true, subtree: true });
+        }
+      }
+
+      document.addEventListener("click", function (e) {
+        var el = e.target;
+        var a = el && el.closest ? el.closest("a") : null;
+        if (!a) return;
+
+        var href = a.getAttribute("href") || "";
+        if (!href) return;
+
+        var resolved = safeResolveUrl(href);
+        if (!looksLikeCheckout(resolved)) return;
+
+        var utms = buildUtms();
+        var sidClick = utms.sid || getOrCreateSid();
+        var decoratedClick = applyUtmsToUrl(resolved, utms, true);
+        if (MCAPI_DEBUG) {
+          console.log("SID atual:", sidClick);
+          console.log("Link original:", resolved);
+          console.log("Link modificado:", decoratedClick);
+        }
+        a.href = decoratedClick;
+
+        postEvent("InitiateCheckout");
+      }, true);
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
     </script>
     
     <style>
@@ -24,6 +255,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #ffffff;
+            color: #111827;
         }
         /* Cor principal: rosa neon vibrante de alto contraste */
         .color-primary {
@@ -38,7 +270,7 @@
             background-color: #FFF0F3; 
         }
         .shadow-button {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.05);
         }
         /* Classe para esconder elementos por padrão */
         .hidden {
@@ -53,35 +285,32 @@
             cursor: pointer;
             outline: none;
             transition: all 0.15s ease-in-out;
-            border-radius: 0.375rem; /* rounded-md */
-            border: 2px solid #FFCCD5; /* Borda rosa sutil */
+            border-radius: 0.375rem;
+            border: 2px solid #FFCCD5;
         }
-
         input[type='checkbox']:checked {
             background-color: #FF3366;
             border-color: #FF3366;
-            /* Ícone de check branco */
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 00-1.414 0L7 8.586 4.207 5.793a1 1 0 00-1.414 1.414l3.5 3.5a1 1 0 001.414 0l5-5a1 1 0 000-1.414z'/%3e%3csvg>");
+            background-image: url("data:image/svg+svg,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 00-1.414 0L7 8.586 4.207 5.793a1 1 0 00-1.414 1.414l3.5 3.5a1 1 0 001.414 0l5-5a1 1 0 000-1.414z'/%3e%3csvg>");
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
         }
-
         /* Estilo para o texto das labels quando o checkbox é checado */
         .label-checked-bg {
-            background-color: #FF3366;
+            background-color: #FF3366 !important;
             box-shadow: 0 10px 15px -3px rgba(255, 51, 102, 0.2), 0 4px 6px -4px rgba(255, 51, 102, 0.1);
         }
         .label-checked-text {
             color: #ffffff !important;
         }
-        .label-checked-bg input[type='checkbox'] {
-             border-color: #ffffff !important; /* Borda branca para o checkbox checado */
+        .label-checked-bg input[type='checkbox'] { 
+             border-color: #ffffff !important;
         }
         
         /* Estilos específicos para a barra de progresso */
         #progressBarContainer {
-            background-color: #FFE5EC; /* Fundo rosa claro */
+            background-color: #FFE5EC;
             height: 10px;
             border-radius: 5px;
             overflow: hidden;
@@ -91,7 +320,6 @@
             height: 100%;
             background-color: #FF3366;
             width: 0%;
-            transition: width 3s linear;
         }
         
         /* Estilos para lista de benefícios e avisos */
@@ -102,8 +330,8 @@
             text-align: left;
         }
         .check-icon {
-            color: #10B981; /* Verde esmeralda para os checks */
-            font-size: 1.5rem;
+            color: #10B981;
+            font-size: 1.25rem;
             line-height: 1;
             margin-right: 0.5rem;
             margin-top: 0.1rem;
@@ -115,23 +343,12 @@
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
         }
-
         /* Estilo para o botão de preço */
         .price-button {
-            background-color: #37C261; /* Verde do botão de compra */
+            background-color: #37C261;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
-        /* Estilo para a caixa de preço com fundo verde claro */
-        .price-box {
-            background-color: #E6FFE6; 
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
-            text-align: right;
-        }
-
         /* Estilo para a barra de desconto válido */
         .discount-bar {
             background-color: #FFF0F3; 
@@ -142,7 +359,6 @@
             color: #FF3366; 
             font-weight: bold;
         }
-
         /* Estilo do bloco rosa no topo da oferta */
         .top-offer-bar {
             background-color: #FF3366;
@@ -153,18 +369,14 @@
             border-radius: 0.5rem;
             margin-bottom: 0.5rem;
         }
-
-        /* ========================================================= */
-        /* ANIMAÇÃO DE TRANSIÇÃO SUAVE ENTRE PÁGINAS (FADE IN + SLIDE UP) */
-        /* ========================================================= */
+        /* Animação suave e cinemática de transição */
         .animate-fade-in-up {
-            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(16px);
+                transform: translateY(12px);
             }
             to {
                 opacity: 1;
@@ -174,53 +386,43 @@
     </style>
 </head>
 <body class="p-4 md:p-8 flex justify-center min-h-screen">
-
-    <!-- CONTAINER PRINCIPAL: GEREICIAMENTO DE VISUALIZAÇÃO -->
+    <!-- CONTAINER PRINCIPAL -->
     <div class="max-w-xl w-full text-center">
 
         <!-- ========================================================= -->
         <!-- VIEW 1: LANDING PAGE (VISÍVEL POR PADRÃO) -->
         <!-- ========================================================= -->
         <div id="landingPage" class="animate-fade-in-up">
-            
             <!-- TÍTULO PRINCIPAL -->
-            <header class="mb-8">
+            <header class="mb-6">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-none color-primary mt-1 uppercase">
                     PORTA MATERNIDADE LUCRATIVO
                 </h2>
             </header>
 
             <!-- INTRODUÇÃO E CHAMADA DE ATENÇÃO -->
-            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+            <section class="text-sm md:text-base mb-6 text-gray-800 leading-relaxed text-center px-1">
                 <p class="mb-4">
                     Oi, tudo bem? Me chamo <strong class="color-primary">Mari Farias</strong> e trabalho com artesanato focado em maternidade.
                 </p>
-                <p class="font-bold">
-                    Descobri um jeito <strong class="color-primary">NOVO</strong> e <strong class="color-primary">SIMPLES</strong> de
-                    <strong class="color-primary">FATURAR ATÉ R$ 3.000,00 por mês</strong>
-                    montando enfeites de porta maternidade, mesmo <strong class="color-primary">sem experiência</strong> e começando na mesa da sua sala!
+                <p class="font-normal text-gray-700">
+                    Descobri um jeito <strong class="color-primary font-bold">NOVO</strong> e <strong class="color-primary font-bold">SIMPLES</strong> de
+                    <strong class="color-primary font-extrabold">FATURAR ATÉ R$ 3.000,00 por mês</strong>
+                    montando enfeites de porta maternidade, mesmo <strong class="color-primary font-bold">sem experiência</strong> e começando na mesa da sua sala!
                 </p>
             </section>
 
-            <!-- CARROSSEL DE IMAGENS ADAPTÁVEL SEM CORTE E SEM BORDAS VAZIAS -->
-            <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-lg">
+            <!-- CARROSSEL DE IMAGENS ADAPTÁVEL -->
+            <div class="mb-6 relative w-full overflow-hidden rounded-xl shadow-lg">
                 <!-- Slides Container -->
                 <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
-                    <!-- Slide 1 -->
-                    <div class="w-full flex-shrink-0">
-                        <img src="carrossel1.webp" alt="Porta maternidade modelo 1" class="w-full h-auto block rounded-xl">
+                    <!-- Slide 1 (Bernardo) -->
+                    <div class="w-full flex-shrink-0 relative">
+                        <img src="image_4996c5.jpg" alt="Porta maternidade Bernardo" class="w-full h-auto block rounded-xl">
                     </div>
-                    <!-- Slide 2 -->
-                    <div class="w-full flex-shrink-0">
-                        <img src="carrossel2.webp" alt="Porta maternidade modelo 2" class="w-full h-auto block rounded-xl">
-                    </div>
-                    <!-- Slide 3 -->
-                    <div class="w-full flex-shrink-0">
-                        <img src="carrossel3.webp" alt="Porta maternidade modelo 3" class="w-full h-auto block rounded-xl">
-                    </div>
-                    <!-- Slide 4 -->
-                    <div class="w-full flex-shrink-0">
-                        <img src="carrossel4.webp" alt="Porta maternidade modelo 4" class="w-full h-auto block rounded-xl">
+                    <!-- Slide 2 (Helena) -->
+                    <div class="w-full flex-shrink-0 relative">
+                        <img src="image_499742.jpg" alt="Porta maternidade Helena" class="w-full h-auto block rounded-xl">
                     </div>
                 </div>
 
@@ -236,137 +438,112 @@
                 <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
                     <button onclick="goToSlide(0)" class="carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
                     <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
-                    <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
-                    <button onclick="goToSlide(3)" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
                 </div>
             </div>
 
-            <!-- SEGUNDO CHAMADO À AÇÃO (CLIQUE NO BOTÃO) -->
-            <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
+            <!-- SEGUNDO CHAMADO À AÇÃO -->
+            <section class="text-sm md:text-base mb-6 text-gray-850 leading-relaxed px-1">
                 <p>
-                    E o <strong class="font-bold">melhor</strong>? Vou te ensinar <strong class="font-bold color-primary">agora</strong> como você também
-                    pode fazer e conquistar a sua independência financeira! Clique no botão abaixo para começar.
+                    E o <strong class="font-bold">melhor</strong>? Vou te ensinar <strong class="font-bold color-primary">agora</strong> como você também pode fazer e conquistar a sua independência financeira! Clique no botão abaixo para começar.
                 </p>
             </section>
 
             <!-- BOTÃO DE AÇÃO -->
-            <div>
-                <button onclick="showQuiz()" class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                    font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                                    transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                   role="button">
+            <div class="px-1">
+                <button onclick="showQuiz()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                     Quero descobrir como!
                 </button>
             </div>
         </div>
 
-
         <!-- ========================================================= -->
         <!-- VIEW 2: QUIZ SOBRE ARTESANATO -->
         <!-- ========================================================= -->
         <div id="quizPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
-                        Você já trabalha com produção de lembrancinhas ou algo relacionado a <span class="bg-primary text-white p-1 rounded-md">artesanato?</span>
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-950">
+                        Você já trabalha com produção de lembrancinhas ou algo relacionado a <span class="bg-primary text-white px-2 py-0.5 rounded-md inline-block">artesanato?</span>
                     </h1>
-                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Escolha a opção abaixo</p>
                 </header>
 
                 <!-- OPÇÕES DE ESCOLHA -->
-                <main class="space-y-4">
-
-                    <!-- Opção 1 -->
-                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Troféu">🏆</span>
-                            <span class="text-lg font-semibold text-gray-800">Sim, já sou artesã profissional e quero diversificar.</span>
+                <main class="space-y-4 max-w-md mx-auto">
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="🏆">🏆</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Sim, já sou artesã profissional e quero diversificar.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <!-- Opção 2 -->
-                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Sorriso">😁</span>
-                            <span class="text-lg font-semibold text-gray-800">Sim, faço por hobby ou para presentear conhecidos.</span>
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="😁">😁</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Sim, faço por hobby ou para presentear conhecidos.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <!-- Opção 3 -->
-                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji Pensativo">🤔</span>
-                            <span class="text-lg font-semibold text-gray-800">Não, mas quero aprender do zero para lucrar!</span>
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="🤔">🤔</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Não, mas quero aprender do zero para lucrar!</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <!-- Opção 4 -->
-                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Olhos Cansados">😢</span>
-                            <span class="text-lg font-semibold text-gray-800">Não, só gostaria de aprender para fazer para o meu próprio filho/família.</span>
+                    <button onclick="showQuestion2()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="😢">😢</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Não, só gostaria de aprender para fazer para o meu próprio filho/família.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
-
                 </main>
             </div>
         </div>
-        
+
         <!-- ========================================================= -->
         <!-- VIEW 3: QUIZ SOBRE CURSOS -->
         <!-- ========================================================= -->
         <div id="quizCursoPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
-                        Você já fez algum curso ou treinamento sobre confecção de <span class="bg-primary text-white p-1 rounded-md">Porta Maternidade?</span>
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-955">
+                        Você já fez algum curso ou treinamento sobre confecção de <span class="bg-primary text-white px-2 py-0.5 rounded-md inline-block">Porta Maternidade?</span>
                     </h1>
-                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Escolha a opção abaixo</p>
                 </header>
 
                 <!-- OPÇÕES DE ESCOLHA -->
-                <main class="space-y-4">
-
-                    <!-- Opção 1 -->
-                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji Rindo">😂</span>
-                            <span class="text-lg font-semibold text-gray-800">Nunca fiz, esse vai ser o meu primeiro contato.</span>
+                <main class="space-y-4 max-w-md mx-auto">
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="😂">😂</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Nunca fiz, esse vai ser o meu primeiro contato.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <!-- Opção 2 -->
-                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Livro">📖</span>
-                            <span class="text-lg font-semibold text-gray-800">Já fiz um curso, mas achei as técnicas muito difíceis ou caras.</span>
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="📖">📖</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Já fez um curso, mas achei as técnicas muito difíceis ou caras.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <!-- Opção 3 -->
-                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
-                            <span class="text-lg font-semibold text-gray-800">Já fiz vários cursos, mas ainda não consegui vender e ter lucro.</span>
+                    <button onclick="showQuestion3()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="🎓">🎓</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Já fiz vários cursos, mas ainda não consegui vender e ter lucro.</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
-
                 </main>
             </div>
         </div>
@@ -375,274 +552,235 @@
         <!-- VIEW 4: QUIZ SOBRE TEMPO -->
         <!-- ========================================================= -->
         <div id="quizTempoPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-950">
                         Quanto tempo por dia você tem para dedicar à montagem de <span class="color-primary">porta maternidade</span> atualmente?
                     </h1>
-                    <p class="mt-3 text-lg text-gray-600">Escolha a opção abaixo</p>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Escolha a opção abaixo</p>
                 </header>
 
                 <!-- OPÇÕES DE ESCOLHA -->
-                <main class="space-y-4">
-                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
-                            <span class="text-lg font-semibold text-gray-800">De 30 minutos a 1 hora por dia</span>
+                <main class="space-y-4 max-w-md mx-auto">
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_4996e8.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Relógio" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🕒</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">De 30 minutos a 1 hora por dia</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
-                            <span class="text-lg font-semibold text-gray-800">2 a 4 horas por dia</span>
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_4996e8.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Relógio" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🕒</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">2 a 4 horas por dia</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
 
-                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                     hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Relógio">🕒</span>
-                            <span class="text-lg font-semibold text-gray-800">Tenho o dia todo livre!</span>
+                    <button onclick="showQuestion4()" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button hover:bg-[#FFD6E0] transition duration-150 ease-in-out w-full border border-pink-50">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_4996e8.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Relógio" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🕒</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800">Tenho o dia todo livre!</span>
                         </span>
-                        <span class="text-xl color-primary">&gt;</span>
+                        <span class="text-lg color-primary font-bold">&gt;</span>
                     </button>
-
                 </main>
             </div>
         </div>
 
-        
         <!-- ========================================================= -->
         <!-- VIEW 5: QUIZ SOBRE DORES (MÚLTIPLA ESCOLHA) -->
         <!-- ========================================================= -->
         <div id="quizDoresPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-950">
                         O que mais te <span class="color-primary">incomoda</span> hoje?
                     </h1>
-                    <p class="mt-3 text-lg text-gray-600">Selecione uma ou mais opções para avançar</p>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Selecione uma ou mais opções para avançar</p>
                 </header>
 
                 <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
-                <main class="space-y-4">
-                    
+                <main class="space-y-4 max-w-md mx-auto">
                     <!-- Checkbox 1 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Triste">😥</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra dinheiro para fazer as coisas que gosto</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="😥">😥</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Não sobra dinheiro para fazer as coisas que gosto</span>
                         </span>
                         <input type="checkbox" name="dor" value="dinheiro_lazer" class="h-6 w-6">
                     </label>
 
                     <!-- Checkbox 2 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Congelado">🥶</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não sobra tempo pra ficar com minha família</span>
+                    <label id="defaultActiveDor" class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="🥶">🥶</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Não sobra tempo pra ficar com minha família</span>
                         </span>
-                         <input type="checkbox" name="dor" value="falta_tempo" class="h-6 w-6">
+                        <input type="checkbox" name="dor" value="falta_tempo" class="h-6 w-6">
                     </label>
 
                     <!-- Checkbox 3 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Rosto Chorando">😭</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Não consigo guardar dinheiro no fim do mês</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <span class="text-3xl mr-4" role="img" aria-label="😭">😭</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Não consigo guardar dinheiro no fim do mês</span>
                         </span>
-                         <input type="checkbox" name="dor" value="guardar_dinheiro" class="h-6 w-6">
+                        <input type="checkbox" name="dor" value="guardar_dinheiro" class="h-6 w-6">
                     </label>
 
                     <!-- Botão Continuar -->
                     <div class="mt-8 pt-4">
-                        <button onclick="showQuestion5()" 
-                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                            role="button">
+                        <button onclick="showQuestion5()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                             Continuar
                         </button>
                     </div>
-
                 </main>
             </div>
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 6: QUIZ SOBRE OBJETIVOS (MÚLTIPLA ESCOLHA) -->
+        <!-- VIEW 6: QUIZ SOBRE OBJETIVOS -->
         <!-- ========================================================= -->
         <div id="quizObjetivosPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+                <header class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-955">
                         O que mais você <span class="color-primary">almeja</span> hoje?
                     </h1>
-                    <p class="mt-3 text-lg text-gray-600">Selecione uma ou mais opções para avançar</p>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Selecione uma ou mais opções para avançar</p>
                 </header>
 
                 <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
-                <main class="space-y-4">
-                    
-                    <!-- Checkbox 1 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Gostaria de conquistar independência financeira trabalhando de casa</span>
+                <main class="space-y-4 max-w-md mx-auto">
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_49971e.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Gráfico" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">📈</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Gostaria de conquistar independência financeira trabalhando de casa</span>
                         </span>
                         <input type="checkbox" name="objetivo" value="independencia" class="h-6 w-6">
                     </label>
 
-                    <!-- Checkbox 2 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Alvo">🎯</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero alavancar meus resultados no meu próprio negócio</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_499723.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Alvo" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🎯</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Quero alavancar meus resultados no meu próprio negócio</span>
                         </span>
-                         <input type="checkbox" name="objetivo" value="alavancar" class="h-6 w-6">
+                        <input type="checkbox" name="objetivo" value="alavancar" class="h-6 w-6">
                     </label>
 
-                    <!-- Checkbox 3 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Cowboy">🤠</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Quero faturar mais para dar conforto à minha família</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_49973d.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Cowboy" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🤠</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Quero faturar mais para dar conforto à minha família</span>
                         </span>
-                         <input type="checkbox" name="objetivo" value="mais_dinheiro" class="h-6 w-6">
+                        <input type="checkbox" name="objetivo" value="mais_dinheiro" class="h-6 w-6">
                     </label>
 
                     <!-- Botão Continuar -->
                     <div class="mt-8 pt-4">
-                        <button onclick="showQuestion6()" 
-                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                            role="button">
+                        <button onclick="showQuestion6()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                             Continuar
                         </button>
                     </div>
-
                 </main>
             </div>
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 7: QUIZ SOBRE OBJETIVO PÓS-CURSO (ALTERNATIVA ÚNICA) -->
+        <!-- VIEW 7: QUIZ SOBRE OBJETIVO PÓS-CURSO -->
         <!-- ========================================================= -->
         <div id="quizObjetivoFinalPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO QUIZ -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
-                        Depois que você estiver montando seus <span class="color-primary">enfeites de maternidade</span>, qual será seu principal <span class="bg-primary text-white p-1 rounded-md">objetivo?</span>
-                    </h1>
-                    <p class="mt-3 text-lg text-gray-600">Seja sincera, é muito importante.</p>
+                <header class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-955 leading-snug">
+                        Depois que você estiver montando seus <span class="color-primary">enfeites de maternidade</span>, qual será seu principal <span class="bg-primary text-white px-2 py-0.5 rounded-md inline-block">objetivo?</span>
+                    </h2>
+                    <p class="mt-3 text-sm text-gray-500 font-medium">Seja sincera, é muito importante.</p>
                 </header>
 
-                <!-- OPÇÕES DE ESCOLHA (CHECKBOXES) -->
-                <main class="space-y-4">
-                    
-                    <!-- Opção 1 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Gráfico">📈</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Vou querer aprender com você como vender e lucrar muito com as peças.</span>
+                <!-- OPÇÕES DE ESCOLHA (MULTIPLE CHOICE COMPORTANDO-SE COMO SINGLE) -->
+                <main class="space-y-4 max-w-md mx-auto">
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_49971e.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Gráfico" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">📈</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Vou querer aprender com você como vender e lucrar muito com as peças.</span>
                         </span>
                         <input type="checkbox" name="objetivo_final" value="lucrar" class="h-6 w-6">
                     </label>
 
-                    <!-- Opção 2 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Taça de Champanhe">🥂</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Alavancar o meu atelier de maternidade já existente.</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_499702.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Champagne" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🥂</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Alavancar o meu atelier de maternidade já existente.</span>
                         </span>
-                         <input type="checkbox" name="objetivo_final" value="alavancar" class="h-6 w-6">
+                        <input type="checkbox" name="objetivo_final" value="alavancar" class="h-6 w-6">
                     </label>
 
-                    <!-- Opção 3 -->
-                    <label class="flex items-center justify-between p-4 bg-button rounded-xl shadow-button 
-                                  hover:bg-[#FFCCD5] transition duration-150 ease-in-out w-full cursor-pointer checkbox-label">
-                        <span class="flex items-center text-left">
-                            <span class="text-3xl mr-4" role="img" aria-label="Emoji de Chapéu de Formatura">🎓</span>
-                            <span class="text-lg font-semibold text-gray-800 option-text text-left">Apenas gostaria de fazer as peças como terapia ou presente.</span>
+                    <label class="flex items-center justify-between p-4 bg-button rounded-2xl shadow-button transition duration-150 ease-in-out w-full cursor-pointer checkbox-label border border-pink-50 hover:bg-[#FFD6E0]">
+                        <span class="flex items-center text-left pr-2">
+                            <img src="image_4996e1.png" class="w-8 h-8 mr-4 object-contain flex-shrink-0" alt="Graduação" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="text-3xl mr-4 hidden">🎓</span>
+                            <span class="text-sm md:text-base font-bold text-gray-800 option-text">Apenas gostaria de fazer as peças como terapia ou presente.</span>
                         </span>
-                         <input type="checkbox" name="objetivo_final" value="hobby" class="h-6 w-6">
+                        <input type="checkbox" name="objetivo_final" value="hobby" class="h-6 w-6">
                     </label>
 
                     <!-- Botão Continuar -->
                     <div class="mt-8 pt-4">
-                        <button onclick="showFinalOffer()" 
-                            class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                                   font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                                   transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                            role="button">
+                        <button onclick="showFinalOffer()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                             Continuar
                         </button>
                     </div>
-
                 </main>
             </div>
         </div>
 
-
         <!-- ========================================================= -->
-        <!-- VIEW 8: PÁGINA DE VENDA (ELIMINAÇÃO DE OBJEÇÃO) -->
+        <!-- VIEW 8: PÁGINA DE VENDA (ELIMINAÇÃO DE OBJEÇÃO COM HELENA) -->
         <!-- ========================================================= -->
         <div id="finalOfferPage" class="hidden">
-            <div class="mt-12 md:mt-16">
+            <div class="mt-4 md:mt-8 text-center px-1">
                 <!-- TÍTULO -->
-                <header class="mb-10">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900 leading-normal">
-                        Nunca fiz <span class="color-primary">artesanato</span>. Consigo começar do <span class="bg-primary text-white px-2 py-0.5 rounded-md">zero</span> mesmo sem experiência?
-                    </h1>
+                <header class="mb-6">
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-950 leading-snug">
+                        Nunca fiz <span class="color-primary">artesanato</span>. Consigo começar do <span class="bg-primary text-white px-2 py-0.5 rounded-md inline-block">zero</span> mesmo sem experiência?
+                    </h2>
                 </header>
 
-                <!-- IMAGEM ILUSTRATIVA DO PROCESSO -->
-                <div class="mb-8">
-                    <img 
-                        src="imagem2.webp" 
-                        alt="Processo facilitado de montagem de enfeites infantis." 
-                        class="w-full h-auto rounded-xl shadow-xl object-cover"
-                    >
+                <!-- IMAGEM HELENA (image_499742.jpg) -->
+                <div class="mb-6 max-w-md mx-auto">
+                    <img src="image_499742.jpg" alt="Porta maternidade Helena" class="w-full h-auto rounded-2xl shadow-xl object-cover">
                 </div>
 
-                <!-- RESPOSTA EM DESTAQUE -->
-                <section class="text-2xl font-extrabold mb-8 text-gray-900">
-                    A resposta é <span class="color-primary">sim</span>!
+                <section class="text-2xl font-extrabold mb-4 text-gray-955">
+                    A resposta é <span class="color-primary">sim!</span>
                 </section>
-                
-                <!-- TEXTO EXPLICATIVO -->
-                <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed">
-                    <p class="mb-4">
-                        Com as <strong class="font-bold">técnicas práticas de montagem</strong> e moldes prontos, montar enfeites de porta maternidade fica muito 
-                        <strong class="font-bold">mais fácil e rápido</strong>. No meu método, você aprende o <strong class="font-bold color-primary">passo a passo completo</strong>, mesmo <strong class="font-bold">sem nenhuma experiência prévia!</strong>
+
+                <section class="text-gray-700 text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed text-center space-y-4">
+                    <p>
+                        Com as <strong class="font-bold">técnicas práticas de montagem</strong> e moldes prontos, montar enfeites de porta maternidade fica muito <strong class="font-bold">mais fácil e rápido</strong>.
+                    </p>
+                    <p>
+                        No meu método, você aprende o <span class="color-primary font-bold">passo a passo completo</span>, mesmo <strong class="font-bold">sem nenhuma experiência prévia!</strong>
                     </p>
                 </section>
 
-                <!-- BOTÃO DE DESTINO -->
-                <div>
-                    <button onclick="showFinalPage()" 
-                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                        role="button">
+                <div class="max-w-md mx-auto">
+                    <button onclick="showFinalPage()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                         Quero aprender o passo a passo!
                     </button>
                 </div>
@@ -650,82 +788,59 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 9: PÁGINA FINAL (FOCO NO CUSTO) -->
+        <!-- VIEW 9: PÁGINA FINAL (FOCO NO CUSTO COM GRID PRODUTOS) -->
         <!-- ========================================================= -->
         <div id="finalPage" class="hidden">
-            <div class="mt-12 md:mt-16">
-                <!-- IMAGEM COM PRODUTOS FINAIS -->
-                <div class="mb-8">
-                    <img 
-                        src="imagem3.webp" 
-                        alt="Vários modelos prontos de porta maternidade delicados." 
-                        class="w-full h-auto rounded-xl shadow-xl object-cover"
-                    >
+            <div class="mt-4 md:mt-8 text-center px-1">
+                <!-- IMAGEM GRID PRODUTOS (image_49975d.jpg) -->
+                <div class="mb-6 max-w-md mx-auto">
+                    <img src="image_49975d.jpg" alt="Pesquisa de preços e modelos de porta maternidade" class="w-full h-auto rounded-2xl shadow-xl object-cover">
                 </div>
 
-                <!-- TÍTULO DE IMPACTO -->
                 <header class="mb-6">
-                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-snug text-gray-900">
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-955 leading-tight">
                         A <span class="color-primary">melhor</span> parte!
-                    </h1>
+                    </h2>
                 </header>
 
-                <!-- TEXTO EXPLICATIVO SOBRE CUSTO -->
-                <section class="text-base md:text-lg mb-8 text-gray-800 leading-relaxed text-left space-y-4">
+                <section class="text-gray-700 text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed text-center space-y-4">
                     <p>
-                        O melhor é que o custo para produzir um porta maternidade é <strong class="font-bold text-green-600">super baixo</strong>. 
-                        Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <strong class="font-bold color-primary">peças lindas</strong> que são vendidas por mais de <strong class="font-bold text-green-600">R$ 100,00 ou R$ 150,00</strong>.
+                        O melhor é que o custo para produzir um porta maternidade é <span class="text-green-600 font-bold">super baixo</span>. Com <strong class="font-bold">menos de R$ 15,00</strong> em materiais básicos você já consegue montar <span class="color-primary font-bold">peças lindas</span> que são vendidas por mais de <span class="text-green-600 font-bold">R$ 100,00 ou R$ 150,00</span>.
                     </p>
                     <p>
-                        Isso representa uma <strong class="font-bold color-primary">excelente margem de lucro</strong>! Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <strong class="font-bold text-rose-500">simplesmente são apaixonadas e compram!</strong>
+                        Isso representa uma <span class="color-primary font-bold">excelente margem de lucro!</span> Você pode começar hoje mesmo com <strong class="font-bold">pouco investimento</strong> na mesa da sua sala, criando produtos que as mamães <span class="color-primary font-bold">simplesmente são apaixonadas e compram!</span>
                     </p>
                 </section>
 
-                <!-- BOTÃO DE DESTINO -->
-                <div>
-                     <button onclick="showTestimonials()" 
-                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                        role="button">
+                <div class="max-w-md mx-auto">
+                     <button onclick="showTestimonials()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                         Continuar
                      </button>
                 </div>
             </div>
         </div>
 
-
         <!-- ========================================================= -->
-        <!-- VIEW 10: DEPOIMENTOS (PROVA SOCIAL DINÂMICA DA ÁREA DE MEMBROS) -->
+        <!-- VIEW 10: DEPOIMENTOS (COM IMAGE_499763.JPG) -->
         <!-- ========================================================= -->
         <div id="testimonialsPage" class="hidden">
-            <div class="mt-12 md:mt-16">
-                <!-- TÍTULO -->
-                <header class="mb-8">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-snug text-gray-900">
+            <div class="mt-4 md:mt-8 text-center px-1">
+                <header class="mb-6">
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-955 leading-snug">
                         Veja o que dizem na <span class="color-primary">Comunidade de Alunas!</span>
-                    </h1>
-                    <p class="mt-3 text-lg text-gray-600 font-medium leading-relaxed">
-                        Veja os comentários reais de quem está assistindo às aulas e já colhendo resultados do absoluto zero.
+                    </h2>
+                    <p class="mt-3 text-sm text-gray-500 font-medium max-w-md mx-auto">
+                        Veja os comentários reais de quem está assistindo às aulas e colhendo resultados do absoluto zero.
                     </p>
                 </header>
 
-                <!-- APENAS A IMAGEM ÚNICA (JÁ POSSUI O LAYOUT DO VÍDEO E COMENTÁRIOS EMBUTIDOS) -->
-                <div class="mb-8">
-                    <img 
-                        src="imagem4.webp" 
-                        alt="Comentários e depoimentos reais da comunidade de alunas" 
-                        class="w-full h-auto rounded-xl shadow-xl object-cover"
-                    >
+                <!-- IMAGEM COMUNIDADE (image_499763.jpg) -->
+                <div class="mb-6 max-w-md mx-auto">
+                    <img src="image_499763.jpg" alt="Feedback e comunidade de alunas Mari Farias" class="w-full h-auto rounded-2xl shadow-xl object-cover">
                 </div>
 
-                <!-- BOTÃO DE DESTINO -->
-                <div>
-                    <button onclick="showLoadingPage()" 
-                        class="inline-block w-full py-3 px-6 bg-primary text-white text-lg md:text-xl 
-                               font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out 
-                               transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-rose-200"
-                        role="button">
+                <div class="max-w-md mx-auto">
+                    <button onclick="showLoadingPage()" class="inline-block w-full py-4 px-6 bg-primary text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#E22D5A] transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none" role="button">
                         Quero ter os mesmos resultados!
                     </button>
                 </div>
@@ -736,206 +851,165 @@
         <!-- VIEW 11: BARRA DE PROGRESSO (LOADING) -->
         <!-- ========================================================= -->
         <div id="loadingPage" class="hidden">
-            <div class="mt-20 md:mt-24 p-6">
-                <!-- TÍTULO -->
-                <header class="mb-12">
-                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-snug text-gray-900">
-                        Você está a <span class="color-primary">poucos instantes</span> de começar a sua <span class="bg-primary text-white p-1 rounded-md">transformação!</span>
+            <div class="mt-16 md:mt-24 p-6">
+                <header class="mb-10 text-center">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-955 leading-snug">
+                        Você está a <span class="color-primary">poucos instantes</span> de começar a sua <span class="bg-primary text-white px-2 py-0.5 rounded-md inline-block">transformação!</span>
                     </h1>
                 </header>
 
-                <!-- STATUS E BARRA -->
                 <div class="max-w-md mx-auto">
-                    <!-- Texto de Status e Porcentagem -->
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-base text-gray-800 font-medium">Preparando o seu plano exclusivo de artesã...</p>
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-sm text-gray-700 font-semibold">Preparando o seu plano exclusivo de artesã...</p>
                         <p id="progressPercent" class="text-lg font-bold color-primary">0%</p>
                     </div>
 
-                    <!-- Contêiner da Barra -->
-                    <div id="progressBarContainer">
+                    <div id="progressBarContainer" class="shadow-inner">
                         <div id="progressBarFill"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-
         <!-- ========================================================= -->
-        <!-- VIEW 12: CHECKOUT FINAL (PÁGINA DE VENDAS COMPLETA) -->
+        <!-- VIEW 12: CHECKOUT FINAL -->
         <!-- ========================================================= -->
         <div id="finalCheckoutPage" class="hidden">
-             <div class="mt-8 md:mt-12 p-1">
-                
-                <!-- INÍCIO: AVISO E QUALIFICAÇÃO -->
+             <div class="mt-4 md:mt-8 p-1 text-left">
+                                
+                <!-- Cabeçalho de Urgência -->
                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-extrabold text-gray-900 mb-1 tracking-tight uppercase color-primary">
+                    <h2 class="text-2xl font-black text-gray-955 mb-1 tracking-tight uppercase color-primary">
                         OPORTUNIDADE EXCLUSIVA LIBERADA!
                     </h2>
-                    <p class="text-sm font-black text-red-600 uppercase tracking-widest animate-pulse mb-3">
+                    <p class="text-xs font-black text-red-600 uppercase tracking-widest animate-pulse mb-3">
                         ⚠️ NÃO FECHE ESTA PÁGINA
                     </p>
                 </div>
 
-                <!-- Aviso de qualificação -->
+                <!-- Caixa de Alerta Verde -->
                 <div class="warning-box mb-8 text-center bg-green-50 border-green-500 border-2">
-                    <p class="text-xl font-extrabold text-green-700 mb-1 flex items-center justify-center">
+                    <p class="text-lg font-extrabold text-green-700 mb-1 flex items-center justify-center">
                         <span class="text-2xl mr-2">🚀</span> 
-                        <span class="text-lg md:text-xl font-black uppercase">TUDO PRONTO</span>
+                        <span class="font-black uppercase">TUDO PRONTO</span>
                     </p>
-                    <p class="text-base text-gray-800 font-medium leading-relaxed mt-2">
-                        Você está pronta para lucrar com a montagem inteligente do método <strong class="color-primary font-bold">Porta Maternidade Lucrativa</strong>.
+                    <p class="text-sm text-gray-800 font-medium leading-relaxed mt-2 px-2">
+                        Você está qualificada para receber o método completo e inteligente <strong class="color-primary font-bold">Porta Maternidade Lucrativa</strong>.
                     </p>
                 </div>
 
-                <!-- TUDO QUE VAI APRENDER -->
-                <section class="mb-10 text-left">
-                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-4 text-center">
+                <!-- Lista de Benefícios do Curso -->
+                <section class="mb-10">
+                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-955 mb-4 text-center leading-tight">
                         Tudo que você vai <span class="color-primary">aprender no Treinamento</span>
                         <br><strong class="font-bold color-primary">Porta Maternidade Lucrativo:</strong>
                     </h2>
-                    <ul class="text-gray-800 space-y-3 max-w-sm mx-auto">
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Treinamento <strong class="font-bold">Completo</strong> em Vídeo de Fácil Entendimento;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Como criar os modelos de porta maternidade mais buscados pelas gestantes;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Moldes digitais <strong class="font-bold">100% prontos</strong> para imprimir sem complicação;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Lista de materiais baratinhos</strong> e onde comprar online;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Método simples para divulgar e <strong class="font-bold">vender todos os dias pelo Instagram</strong>;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Como faturar até <strong class="text-green-600 font-bold">R$ 3.000,00 por mês</strong> trabalhando de casa;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Planilha e Calculadora</strong> para precificar as suas peças e garantir lucro;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Acesso vitalício para assistir no seu tempo e quantas vezes quiser;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1">Grupo VIP de suporte com a <strong class="font-bold">Mari Farias</strong> para tirar todas as dúvidas;</span></li>
-                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1"><strong class="font-bold">Certificado de Conclusão</strong> incluso.</span></li>
+                    <ul class="text-gray-800 space-y-3 max-w-md mx-auto px-2">
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Treinamento <strong class="font-bold">Completo</strong> em Vídeo de Fácil Entendimento;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Como criar os modelos de porta maternidade mais buscados pelas gestantes;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Moldes digitais <strong class="font-bold">100% prontos</strong> para imprimir sem complicação;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base"><strong class="font-bold">Lista de materiais baratinhos</strong> e onde comprar online para economizar;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Método simples para divulgar e <strong class="font-bold">vender todos os dias pelo Instagram</strong>;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Como faturar até <strong class="text-green-600 font-bold">R$ 3.000,00 por mês</strong> trabalhando em casa;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base"><strong class="font-bold">Planilha e Calculadora</strong> para precificar as suas peças e garantir o lucro;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Acesso vitalício para assistir no seu ritmo e quando preferir;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base">Grupo VIP de suporte com a <strong class="font-bold">Mari Farias</strong> para tirar todas as dúvidas;</span></li>
+                        <li class="check-item"><span class="check-icon">&#10003;</span> <span class="flex-1 text-sm md:text-base"><strong class="font-bold">Certificado de Conclusão</strong> incluso no Kit Premium.</span></li>
                     </ul>
                 </section>
                 
-                <!-- IMAGEM DO PRODUTO E CARROSSEL DE TANGIBILIZAÇÃO -->
-                <section class="mb-10">
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 text-center">
-                        O treinamento <span class="color-primary">+Completo</span>. Inscreva-se abaixo:
+                <!-- Área de Membros Banner -->
+                <section class="mb-10 text-center">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-955 mb-4">
+                        O treinamento <span class="color-primary">+Completo</span>. Inscreva-se:
                     </h2>
                     
-                    <!-- NOVO CARROSSEL DA ÁREA DE MEMBROS (TANGIBILIZAÇÃO) -->
-                    <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-2xl">
-                        <!-- Slides Container -->
-                        <div id="membrosTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
-                            <!-- Slide 1 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="membros1.webp" alt="Área de membros por dentro no celular" class="w-full h-auto block rounded-xl">
-                            </div>
-                            <!-- Slide 2 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="membros2.webp" alt="Vídeoaula de montagem prática por dentro" class="w-full h-auto block rounded-xl">
-                            </div>
-                            <!-- Slide 3 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="membros3.webp" alt="Download de moldes e lista de materiais de apoio" class="w-full h-auto block rounded-xl">
-                            </div>
-                        </div>
-
-                        <!-- Botões de Navegação -->
-                        <button onclick="prevMembrosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
-                            &#10094;
-                        </button>
-                        <button onclick="nextMembrosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
-                            &#10095;
-                        </button>
-
-                        <!-- Pontos Indicadores -->
-                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-                            <button onclick="goToMembrosSlide(0)" class="membros-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
-                            <button onclick="goToMembrosSlide(1)" class="membros-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
-                            <button onclick="goToMembrosSlide(2)" class="membros-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
-                        </div>
+                    <div class="mb-8 max-w-md mx-auto rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                        <img src="image_499763.jpg" alt="Área de membros e aulas Mari Farias" class="w-full h-auto block object-cover">
                     </div>
                 </section>
 
-                <!-- BÔNUS GRATUITOS REFORMULADOS (SEM ASTERISCOS E EM CARDS MODERNOS) -->
-                <section class="mb-12 text-left px-2">
-                    <h2 class="text-xl md:text-2xl font-extrabold text-green-600 mb-6 text-center bg-yellow-300 p-2.5 rounded-lg shadow-sm">
-                        GRATUITO CASO SE INSCREVA HOJE NO KIT PREMIUM!
+                <!-- Bloco de Bônus Gratuitos -->
+                <section class="mb-12 px-2">
+                    <h2 class="text-lg md:text-xl font-extrabold text-green-700 mb-6 text-center bg-yellow-300 py-3 px-4 rounded-xl shadow-sm leading-tight uppercase">
+                        🎁 GRATUITO CASO SE INSCREVA HOJE NO KIT PREMIUM!
                     </h2>
-                    <p class="text-lg font-bold text-gray-800 mb-6 text-center">
+                    <p class="text-base md:text-lg font-bold text-gray-850 mb-6 text-center">
                         Além do Treinamento Completo você terá <span class="color-primary font-black">4 bônus exclusivos</span>:
                     </p>
                     
                     <div class="grid grid-cols-1 gap-4 max-w-md mx-auto">
-                        <!-- Bonus Card 1 -->
                         <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm flex items-start space-x-3.5 hover:shadow-md transition">
-                            <span class="text-4xl" role="img" aria-label="Presente">🎁</span>
+                            <span class="text-3xl">🎁</span>
                             <div>
-                                <h4 class="text-base font-extrabold text-gray-900 mb-1">BÔNUS 1 - Guirlandas de Bastidor Premium</h4>
-                                <p class="text-sm text-gray-600 leading-relaxed">Aprenda a fazer as guirlandas em MDF e tecido que são as favoritas das mamães minimalistas.</p>
+                                <h4 class="text-base font-extrabold text-gray-955 mb-1 leading-snug">BÔNUS 1 - Guirlandas de Bastidor Premium</h4>
+                                <p class="text-sm text-gray-650 leading-relaxed">Aprenda a fazer as guirlandas em MDF e tecido favoritas das mamães minimalistas.</p>
                             </div>
                         </div>
 
-                        <!-- Bonus Card 2 -->
                         <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm flex items-start space-x-3.5 hover:shadow-md transition">
-                            <span class="text-4xl" role="img" aria-label="Presente">🎁</span>
+                            <span class="text-3xl">🎁</span>
                             <div>
-                                <h4 class="text-base font-extrabold text-gray-900 mb-1">BÔNUS 2 - Modelos com Amigurumi</h4>
-                                <p class="text-sm text-gray-600 leading-relaxed">Como unir o crochê moderno às placas de madeira e inflar seu faturamento por peça.</p>
+                                <h4 class="text-base font-extrabold text-gray-955 mb-1 leading-snug">BÔNUS 2 - Modelos com Amigurumi</h4>
+                                <p class="text-sm text-gray-655 leading-relaxed">Como unir o crochê moderno às placas de madeira e inflar o seu faturamento final.</p>
                             </div>
                         </div>
 
-                        <!-- Bonus Card 3 -->
                         <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm flex items-start space-x-3.5 hover:shadow-md transition">
-                            <span class="text-4xl" role="img" aria-label="Presente">🎁</span>
+                            <span class="text-3xl">🎁</span>
                             <div>
-                                <h4 class="text-base font-extrabold text-gray-900 mb-1">BÔNUS 3 - Placas Pinus com LED</h4>
-                                <p class="text-sm text-gray-600 leading-relaxed">Adicione iluminação sofisticada às suas peças e cobre até 3x mais por cada enfeite.</p>
+                                <h4 class="text-base font-extrabold text-gray-955 mb-1 leading-snug">BÔNUS 3 - Placas Pinus com LED</h4>
+                                <p class="text-sm text-gray-655 leading-relaxed">Adicione iluminação sofisticada às suas peças e cobre até 3x mais por cada enfeite.</p>
                             </div>
                         </div>
 
-                        <!-- Bonus Card 4 -->
                         <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm flex items-start space-x-3.5 hover:shadow-md transition">
-                            <span class="text-4xl" role="img" aria-label="Presente">🎁</span>
+                            <span class="text-3xl">🎁</span>
                             <div>
-                                <h4 class="text-base font-extrabold text-gray-900 mb-1">BÔNUS 4 - Embalagem Encantadora</h4>
-                                <p class="text-sm text-gray-600 leading-relaxed">Como criar um unboxing inesquecível com cheirinho de bebê para fidelizar seus clientes.</p>
+                                <h4 class="text-base font-extrabold text-gray-955 mb-1 leading-snug">BÔNUS 4 - Embalagem Encantadora</h4>
+                                <p class="text-sm text-gray-655 leading-relaxed">Como criar um unboxing inesquecível com cheirinho de bebê para encantar os clientes.</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
-
-                <!-- SEÇÃO DE DUAS OFERTAS: R$ 17 (APOSTILA) VS R$ 27 (KIT PREMIUM) -->
-                <section class="mb-12 px-2">
+                <!-- Preços e Ofertas -->
+                <section class="mb-12 px-2 text-center">
                     <div class="text-center mb-8">
-                        <span class="top-offer-bar px-4 py-1.5 uppercase tracking-wide">Escolha a sua oferta abaixo</span>
-                        <h3 class="text-lg font-bold text-gray-800 mt-3">Restam apenas <span class="text-red-600 font-black">3 vagas</span> com condições promocionais.</h3>
+                        <span class="top-offer-bar px-4 py-1.5 uppercase tracking-wide rounded-md">Escolha a sua oferta abaixo</span>
+                        <h3 class="text-base font-bold text-gray-800 mt-4">Restam apenas <span class="text-red-600 font-black">3 vagas</span> com condições promocionais.</h3>
                     </div>
 
                     <div class="flex flex-col gap-8 max-w-sm mx-auto">
-                        
-                        <!-- OFERTA 1: APENAS APOSTILA (R$ 17) -->
-                        <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-gray-300 relative text-center">
-                            <h4 class="text-xl font-black text-gray-500 uppercase tracking-wider mb-1">APENAS APOSTILA</h4>
-                            <p class="text-xs font-bold text-gray-400 uppercase mb-4">LEVE APENAS OS MOLDES E INSTRUÇÕES ESCRITAS</p>
+                        <!-- OFERTA 1: R$ 17 -->
+                        <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-gray-200 relative text-center">
+                            <h4 class="text-lg font-black text-gray-500 uppercase tracking-wider mb-1">APENAS APOSTILA</h4>
+                            <p class="text-xs font-bold text-gray-450 uppercase mb-4">LEVE APENAS OS MOLDES E INSTRUÇÕES ESCRITAS</p>
                             
                             <div class="mb-4">
                                 <span class="text-sm text-gray-400 line-through">De R$ 97</span>
-                                <div class="text-5xl font-black text-gray-800 my-1">R$ 17</div>
-                                <span class="text-xs font-black text-gray-400 uppercase">PAGAMENTO ÚNICO SEM MENSALIDADES</span>
+                                <div class="text-4xl font-black text-gray-850 my-1">R$ 17</div>
+                                <span class="text-[10px] font-black text-gray-400 uppercase">PAGAMENTO ÚNICO SEM MENSALIDADES</span>
                             </div>
 
-                            <hr class="border-gray-200 my-5">
+                            <hr class="border-gray-150 my-4">
 
-                            <ul class="text-sm text-left space-y-3.5 mb-8">
-                                <li class="flex items-start text-gray-700">
+                            <ul class="text-xs md:text-sm text-left space-y-3.5 mb-8 text-gray-650">
+                                <li class="flex items-start">
                                     <span class="text-green-500 font-bold mr-2">✓</span>
                                     <span>Apostila Completa de Moldes & Riscos</span>
                                 </li>
-                                <li class="flex items-start text-gray-700">
+                                <li class="flex items-start">
                                     <span class="text-green-500 font-bold mr-2">✓</span>
-                                    <span>Lista Completa de Fornecedores</span>
+                                    <span>Lista Completa de Fornecedores Oficiais</span>
                                 </li>
-                                <li class="flex items-start text-gray-700">
+                                <li class="flex items-start">
                                     <span class="text-green-500 font-bold mr-2">✓</span>
                                     <span>Planilha de Precificação Básica</span>
                                 </li>
                                 <li class="flex items-start text-gray-400 line-through">
                                     <span class="text-gray-300 mr-2">✖</span>
-                                    <span>Vídeo Aulas de Montagem Detalhada</span>
+                                    <span>Vídeo Aulas Gravadas de Montagem Detalhada</span>
                                 </li>
                                 <li class="flex items-start text-gray-400 line-through">
                                     <span class="text-gray-300 mr-2">✖</span>
@@ -947,19 +1021,18 @@
                                 </li>
                             </ul>
 
-                            <a href="https://mari-confeiteira.pay.yampi.com.br/r/7LL23HUXR2" class="inline-block w-full py-3.5 px-6 bg-slate-700 text-white text-base font-black rounded-xl shadow-md hover:bg-slate-800 transition transform hover:scale-[1.01] active:scale-[0.99] uppercase">
+                            <a href="https://mari-confeiteira.pay.yampi.com.br/r/7LL23HUXR2" class="inline-block w-full py-3.5 px-6 bg-slate-700 text-white text-sm font-black rounded-xl shadow-md hover:bg-slate-800 transition transform hover:scale-[1.01] active:scale-[0.99] uppercase">
                                 QUERO SÓ A APOSTILA (R$ 17)
                             </a>
-                            <div class="discount-bar mt-4">Desconto válido por: <span id="timer1">00:00</span></div>
+                            <div class="discount-bar mt-4">Desconto válido por: <span class="timer-display" id="timer1">03:00</span></div>
                         </div>
 
-                        <!-- OFERTA 2: KIT PREMIUM (R$ 27) - RECOMENDADO -->
+                        <!-- OFERTA 2: R$ 27 -->
                         <div class="bg-white p-6 rounded-[32px] shadow-2xl border-4 border-[#FF3366] relative text-center pt-8">
-                            <!-- BADGE DE RECOMENDADO -->
                             <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF3366] text-white font-black text-xs px-6 py-2 rounded-full shadow-md uppercase tracking-wider">
                                 RECOMENDADO
                             </div>
-
+                            
                             <h4 class="text-2xl font-black text-[#FF3366] uppercase tracking-wider mb-1">KIT PREMIUM</h4>
                             <p class="text-xs font-extrabold text-[#E62E59] uppercase tracking-wider mb-4 leading-relaxed">
                                 A EXPERIÊNCIA COMPLETA PARA FATURAR ALTO!
@@ -967,239 +1040,188 @@
                             
                             <div class="mb-4">
                                 <span class="text-sm text-gray-400 line-through">De R$ 297</span>
-                                <div class="text-5xl font-black text-[#FF3366] my-1">R$ 27</div>
-                                <span class="text-xs font-black text-[#E62E59] uppercase">TUDO LIBERADO IMEDIATAMENTE</span>
+                                <div class="text-4xl md:text-5xl font-black text-[#FF3366] my-1">R$ 27</div>
+                                <span class="text-[10px] font-black text-[#E62E59] uppercase">TUDO LIBERADO IMEDIATAMENTE</span>
                             </div>
 
-                            <hr class="border-rose-100 my-5">
+                            <hr class="border-rose-100 my-4">
 
-                            <ul class="text-sm text-left space-y-3.5 mb-8">
-                                <li class="flex items-start text-gray-800 font-semibold">
+                            <ul class="text-xs md:text-sm text-left space-y-3.5 mb-8 text-gray-700">
+                                <li class="flex items-start font-semibold text-gray-850">
                                     <span class="text-green-500 font-extrabold mr-2">✓</span>
                                     <span>Acesso Vitalício às Vídeo Aulas Gravadas</span>
                                 </li>
-                                <li class="flex items-start text-gray-800 font-semibold">
+                                <li class="flex items-start font-semibold text-gray-855">
                                     <span class="text-green-500 font-extrabold mr-2">✓</span>
                                     <span>Apostila Completa de Moldes & Riscos</span>
                                 </li>
-                                <li class="flex items-start text-gray-800 font-semibold">
+                                <li class="flex items-start font-semibold text-gray-855">
                                     <span class="text-green-500 font-extrabold mr-2">✓</span>
-                                    <span>Grupo VIP de Suporte no WhatsApp (Mari Farias)</span>
+                                    <span>Grupo VIP de Suporte (Mari Farias)</span>
                                 </li>
-                                <li class="flex items-start text-gray-800">
+                                <li class="flex items-start text-pink-600 font-medium">
                                     <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 1: Guirlandas de Bastidor Premium</span>
                                 </li>
-                                <li class="flex items-start text-gray-800">
+                                <li class="flex items-start text-pink-600 font-medium">
                                     <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 2: Modelos com Amigurumi</span>
                                 </li>
-                                <li class="flex items-start text-gray-800">
+                                <li class="flex items-start text-pink-600 font-medium">
                                     <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 3: Placas Pinus com LED</span>
                                 </li>
-                                <li class="flex items-start text-gray-800">
+                                <li class="flex items-start text-pink-600 font-medium">
                                     <span class="text-[#FF3366] font-extrabold mr-2">★</span>
                                     <span>Bônus 4: Unboxing & Embalagem Encantadora</span>
                                 </li>
                             </ul>
 
-                            <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-4 px-6 price-button text-white text-lg font-black rounded-xl shadow-xl hover:bg-green-600 transition transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wide">
+                            <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-4 px-6 price-button text-white text-base md:text-lg font-black rounded-xl shadow-xl hover:bg-green-600 transition transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wide">
                                 GARANTIR KIT PREMIUM COMPLETO
                             </a>
-                            <div class="discount-bar mt-4">Desconto válido por: <span id="timer2">00:00</span></div>
+                            <div class="discount-bar mt-4">Desconto válido por: <span class="timer-display" id="timer2">03:00</span></div>
                         </div>
-
                     </div>
                 </section>
 
-                <!-- DEPOIMENTOS E SEGURANÇA -->
-                <section class="text-center mb-10">
-                    <!-- SELO SEGURANÇA -->
-                    <div class="mb-4">
-                        <img src="imagem6.webp" alt="Compra segura certificada" class="mx-auto w-32 md:w-40" onerror="this.onerror=null; this.src='https://placehold.co/200x40/FFE5EC/FF3366?text=COMPRA+SEGURA';">
-                    </div>
-
-                    <h2 class="text-2xl font-extrabold text-gray-900 mb-2">Quem faz recomenda!</h2>
-                    <p class="text-xl font-extrabold color-primary mb-3">Comunidade de Alunas Faturando</p>
-                    <p class="text-sm text-gray-600 mb-6">Mais de 94% das nossas alunas recomendam o curso para amigas e familiares devido à clareza e retorno rápido.</p>
+                <!-- Depoimentos das Alunas -->
+                <section class="text-center mb-10 px-2">
+                    <h2 class="text-2xl font-extrabold text-gray-955 mb-2">Quem faz recomenda!</h2>
+                    <p class="text-lg font-extrabold color-primary mb-3">Comunidade de Alunas Faturando</p>
+                    <p class="text-sm text-gray-650 mb-6">Mais de 94% das nossas alunas recomendam o curso para amigas e familiares devido à clareza e retorno rápido.</p>
                     
-                    <!-- Bloco de Depoimento Renata -->
-                    <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-200 mb-6 text-left max-w-md mx-auto">
+                    <div class="bg-white p-5 rounded-2xl shadow-lg border-2 border-gray-150 mb-8 text-left max-w-md mx-auto">
                         <div class="flex items-center mb-3">
-                            <img src="imagem7.webp" alt="Foto da aluna Renata" class="rounded-full mr-3 w-10 h-10 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/FFF0F3/FF3366?text=R';">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center font-bold text-[#FF3366] mr-3">
+                                RE
+                            </div>
                             <div>
-                                <p class="text-sm font-bold text-gray-900">Renata Epibanc</p>
+                                <p class="text-sm font-bold text-gray-955">Renata Epibanc</p>
                                 <p class="text-xs text-yellow-500">★★★★★</p>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-700 italic">
+                        <p class="text-sm text-gray-655 italic">
                             "A Mari tem uma didática fantástica e o suporte é sensacional! Meus enfeites estão fazendo o maior sucesso e já estou cheia de encomendas para este mês. Mudou minha rotina em casa!"
                         </p>
                     </div>
 
-                    <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
-                        font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
-                        transform hover:scale-[1.02] active:scale-[0.98]">
+                    <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-4 px-6 price-button text-white text-base md:text-lg font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
                         Quero viver trabalhando de casa!
                     </a>
-                    <div class="discount-bar">Desconto válido por: <span id="timer3">00:00</span></div>
+                    <div class="discount-bar mt-4">Desconto válido por: <span class="timer-display" id="timer3">03:00</span></div>
                 </section>
                 
-                <!-- GARANTIA -->
-                <section class="mb-10 text-center">
+                <!-- Garantia -->
+                <section class="mb-10 text-center px-2">
                     <div class="warning-box bg-white border-primary shadow-xl p-6" style="border-color: #FF3366;">
-                        <!-- SELO GARANTIA -->
-                        <div class="mb-4">
-                            <img src="imagem8.webp" alt="Ícone de garantia incondicional" class="mx-auto w-20 h-20" onerror="this.onerror=null; this.src='https://placehold.co/100x100/FFE5EC/FF3366?text=7+DIAS';">
-                        </div>
-                        <h4 class="text-xl font-extrabold text-gray-900 mb-2">7 DIAS DE GARANTIA INCONDICIONAL!</h4>
-                        <p class="text-sm text-gray-700 mb-3">TESTE SEM COMPROMISSO. SE NÃO GOSTAR, DEVOLVEMOS CADA CENTAVO!</p>
-                        <p class="text-sm text-gray-600">Sua compra é totalmente segura e respaldada. Você pode entrar, assistir às primeiras aulas, e se achar que o método não é para você, basta pedir o reembolso em até 7 dias.</p>
+                        <h4 class="text-lg md:text-xl font-extrabold text-gray-955 mb-2 leading-tight uppercase font-black">7 DIAS DE GARANTIA INCONDICIONAL!</h4>
+                        <p class="text-xs md:text-sm text-gray-700 mb-3 font-bold">TESTE SEM COMPROMISSO. SE NÃO GOSTAR, DEVOLVEMOS CADA CENTAVO!</p>
+                        <p class="text-xs md:text-sm text-gray-600 leading-relaxed">Sua compra é totalmente segura e respaldada. Você pode entrar, assistir às primeiras aulas, e se achar que o método não é para você, basta pedir o reembolso em até 7 dias.</p>
                     </div>
                 </section>
 
-                <!-- MODELOS E FOTOS (CARROSSEL) -->
-                <section class="mb-10 text-center">
-                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-6">
+                <!-- VEJA ALGUNS DOS QUE APRENDERÁ -->
+                <section class="mb-10 text-center px-2">
+                    <h2 class="text-2xl font-black text-gray-955 mb-6 uppercase tracking-tight">
                         VEJA ALGUNS DOS <span class="color-primary">QUE APRENDERÁ!</span>
                     </h2>
                     
-                    <div class="mb-8 relative w-full overflow-hidden rounded-xl shadow-2xl">
-                        <!-- Slides Container -->
-                        <div id="modelosTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
-                            <!-- Slide 1 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="modelo1.webp" alt="Modelo de Porta Maternidade 1" class="w-full h-auto block rounded-xl">
-                            </div>
-                            <!-- Slide 2 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="modelo2.webp" alt="Modelo de Porta Maternidade 2" class="w-full h-auto block rounded-xl">
-                            </div>
-                            <!-- Slide 3 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="modelo3.webp" alt="Modelo de Porta Maternidade 3" class="w-full h-auto block rounded-xl">
-                            </div>
-                            <!-- Slide 4 -->
-                            <div class="w-full flex-shrink-0">
-                                <img src="modelo4.webp" alt="Modelo de Porta Maternidade 4" class="w-full h-auto block rounded-xl">
-                            </div>
-                        </div>
-
-                        <!-- Botões de Navegação -->
-                        <button onclick="prevModelosSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Slide anterior">
-                            &#10094;
-                        </button>
-                        <button onclick="nextModelosSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-[#FF3366] w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md transition-all active:scale-90 z-10" aria-label="Próximo slide">
-                            &#10095;
-                        </button>
-
-                        <!-- Pontos Indicadores -->
-                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-                            <button onclick="goToModelosSlide(0)" class="modelos-dot w-2 h-2 rounded-full bg-white transition-all duration-300" aria-label="Ir para slide 1"></button>
-                            <button onclick="goToModelosSlide(1)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 2"></button>
-                            <button onclick="goToModelosSlide(2)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 3"></button>
-                            <button onclick="goToModelosSlide(3)" class="modelos-dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300" aria-label="Ir para slide 4"></button>
-                        </div>
+                    <div class="max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl mb-8 border border-rose-50">
+                        <img src="image_49ee14.png" alt="Porta Maternidade Modelo Emily com Urso" class="w-full h-auto block object-cover">
                     </div>
                 </section>
 
-                <!-- SEÇÃO FINAL DE AUTORIA -->
-                <section class="mb-10 text-center">
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary" style="border-top-color: #FF3366;">
-                        <!-- AVATAR MARI FARIAS -->
-                        <img src="imagem10.webp" alt="Foto de Mari Farias" class="rounded-full mx-auto mb-4 w-28 h-28 object-cover border-4 border-primary" style="border-color: #FF3366;" onerror="this.onerror=null; this.src='https://placehold.co/150x100/FFF0F3/FF3366?text=MARI';">
+                <!-- Informações e Bio de Mari Farias -->
+                <section class="mb-10 text-center px-2">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-primary" style="border-top-color: #FF3366;">
+                        <div class="w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center font-bold text-2xl text-[#FF3366] mx-auto mb-4 border-4 border-rose-200">
+                            MF
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-955 mb-1">Mari Farias</h4>
+                        <p class="text-xs text-gray-500 mb-4 font-semibold uppercase tracking-wider">Criadora do Método Porta Maternidade Lucrativo</p>
                         
-                        <h4 class="text-lg font-bold text-gray-900 mb-1">Mari Farias</h4>
-                        <p class="text-sm text-gray-600 mb-4">Criadora do Treinamento <strong class="font-bold color-primary">Porta Maternidade Lucrativo</strong>, artesã e especialista em maternidade desde 2019.</p>
-                        
-                        <p class="text-base text-gray-800 leading-relaxed mb-6">
+                        <p class="text-sm text-gray-605 leading-relaxed mb-6">
                             Comecei montando as minhas primeiras placas na mesa da sala para amigos próximos e me apaixonei. Hoje, ajudo milhares de mulheres a conquistarem liberdade financeira fazendo algo apaixonante e lucrativo! ✨
                         </p>
 
-                         <div class="bg-red-100 text-red-700 text-sm font-semibold p-2 rounded-lg mb-4">
+                        <div class="bg-red-100 text-red-700 text-xs font-bold p-2.5 rounded-lg mb-6 uppercase tracking-wider animate-pulse">
                             Não deixe essa oportunidade passar!
                         </div>
-                        
-                        <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-3 px-6 price-button text-white text-lg md:text-xl 
-                            font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out 
-                            transform hover:scale-[1.02] active:scale-[0.98]">
+
+                        <a href="https://mari-confeiteira.pay.yampi.com.br/r/8BS8LVQ4EH" class="inline-block w-full py-4 px-6 price-button text-white text-base font-bold rounded-xl shadow-xl hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
                             Quero viver trabalhando de casa!
                         </a>
 
-                        <!-- FAQ SEÇÃO ACCORDION -->
+                        <!-- Perguntas Frequentes (FAQ Accordion) -->
                         <div class="mt-10 text-left border-t border-gray-100 pt-8">
-                            <h3 class="text-xl font-extrabold text-gray-900 mb-6 text-center">
+                            <h3 class="text-lg md:text-xl font-extrabold text-gray-955 mb-6 text-center uppercase tracking-tight">
                                 Perguntas <span class="color-primary">Frequentes (FAQ)</span>
                             </h3>
+                            
                             <div class="space-y-4">
-                                <!-- FAQ 1 -->
                                 <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                                     <button onclick="toggleFaq('faq1')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
-                                        <span>Como vou receber o acesso ao conteúdo?</span>
+                                        <span class="text-sm md:text-base">Como vou receber o acesso ao conteúdo?</span>
                                         <span id="faq1-icon" class="text-xl color-primary font-bold">+</span>
                                     </button>
-                                    <div id="faq1" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                    <div id="faq1" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-655 leading-relaxed">
                                         Você receberá todo o acesso de forma 100% digital diretamente no seu e-mail cadastrado logo após a confirmação do pagamento. Pagamentos via PIX ou Cartão de Crédito são aprovados e liberados em menos de 2 minutos automaticamente!
                                     </div>
                                 </div>
-                                <!-- FAQ 2 -->
+
                                 <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                                     <button onclick="toggleFaq('faq2')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
-                                        <span>Preciso de alguma experiência com artesanato?</span>
+                                        <span class="text-sm md:text-base">Preciso de alguma experiência com artesanato?</span>
                                         <span id="faq2-icon" class="text-xl color-primary font-bold">+</span>
                                     </button>
-                                    <div id="faq2" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
-                                        Não! O método foi totalmente desenhado para iniciantes absolutos. Eu te pego pela mão e mostro cada detalhe da montagem na mesa da sua sala, sem complicações.
+                                    <div id="faq2" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-655 leading-relaxed">
+                                        Não! O método foi totalmente desenhado para iniciantes absolutos. Eu te pego pela mão e mostro cada detalhe da montagem na mesa da sua sala, de forma simples e descomplicada.
                                     </div>
                                 </div>
-                                <!-- FAQ 3 -->
+
                                 <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                                     <button onclick="toggleFaq('faq3')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
-                                        <span>Quais materiais preciso para começar?</span>
+                                        <span class="text-sm md:text-base">Quais materiais preciso para começar?</span>
                                         <span id="faq3-icon" class="text-xl color-primary font-bold">+</span>
                                     </button>
-                                    <div id="faq3" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
-                                        Você começará com materiais muito simples e baratos, como bastidores de MDF, tecidos infantis básicos, cola e enfeites simples. Além disso, no curso você recebe a minha lista secreta de fornecedores com os melhores preços da internet para economizar ao máximo.
+                                    <div id="faq3" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-655 leading-relaxed">
+                                        Você começará com materiais muito simples e baratos, como bastidores de MDF, tecidos infantis básicos, cola e enfeites simples. Além disso, no curso você recebe a minha lista secreta de fornecedores oficiais com os melhores preços do mercado para economizar ao máximo.
                                     </div>
                                 </div>
-                                <!-- FAQ 4 -->
+
                                 <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                                     <button onclick="toggleFaq('faq4')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
-                                        <span>Por quanto tempo terei acesso ao treinamento?</span>
+                                        <span class="text-sm md:text-base">Por quanto tempo terei acesso ao treinamento?</span>
                                         <span id="faq4-icon" class="text-xl color-primary font-bold">+</span>
                                     </button>
-                                    <div id="faq4" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                    <div id="faq4" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-655 leading-relaxed">
                                         O seu acesso ao treinamento é 100% vitalício! Isso significa que você pode assistir às aulas no seu próprio ritmo, rever as instruções quantas vezes achar necessário e o conteúdo nunca expirará.
                                     </div>
                                 </div>
-                                <!-- FAQ 5 -->
+
                                 <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                                     <button onclick="toggleFaq('faq5')" class="w-full p-4 flex justify-between items-center text-left font-bold text-gray-800 hover:bg-gray-100 transition focus:outline-none">
-                                        <span>E se eu não gostar ou achar que não é para mim?</span>
+                                        <span class="text-sm md:text-base">E se eu não gostar ou achar que não é para mim?</span>
                                         <span id="faq5-icon" class="text-xl color-primary font-bold">+</span>
                                     </button>
-                                    <div id="faq5" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-600 leading-relaxed">
+                                    <div id="faq5" class="hidden p-4 bg-white border-t border-gray-100 text-sm text-gray-655 leading-relaxed">
                                         Fique totalmente tranquila! Você tem uma garantia incondicional de 7 dias respaldada por lei. Se por qualquer motivo não amar o conteúdo, basta solicitar o reembolso e devolvemos cada centavo do seu dinheiro imediatamente.
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </section>
-
              </div>
         </div>
-
     </div>
-
 
     <!-- JAVASCRIPT: LÓGICA E CONTROLES -->
     <script>
-        // --- CONFIGURAÇÃO CARROSSEL DA PRIMEINA PÁGINA (HERO) ---
+        // --- CONFIGURAÇÃO CARROSSEL DA PRIMEIRA PÁGINA (HERO) ---
         let currentSlide = 0;
-        const totalSlides = 4;
+        const totalSlides = 2; // Bernardo e Helena
         let carouselTimer;
 
         function updateCarousel() {
@@ -1265,161 +1287,12 @@
             }
         }
 
-
-        // --- CONFIGURAÇÃO DO SEGUNDO CARROSSEL (ÁREA DE MEMBROS) ---
-        let membrosSlide = 0;
-        const totalMembrosSlides = 3;
-        let membrosTimer;
-
-        function updateMembrosCarousel() {
-            const track = document.getElementById('membrosTrack');
-            if (track) {
-                track.style.transform = `translateX(-${membrosSlide * 100}%)`;
-            }
-            
-            const dots = document.querySelectorAll('.membros-dot');
-            dots.forEach((dot, index) => {
-                if (index === membrosSlide) {
-                    dot.classList.remove('bg-white/50');
-                    dot.classList.add('bg-white', 'w-4');
-                } else {
-                    dot.classList.remove('bg-white', 'w-4');
-                    dot.classList.add('bg-white/50');
-                }
-            });
-        }
-
-        function nextMembrosSlide() {
-            membrosSlide = (membrosSlide + 1) % totalMembrosSlides;
-            updateMembrosCarousel();
-            resetMembrosTimer();
-        }
-
-        function prevMembrosSlide() {
-            membrosSlide = (membrosSlide - 1 + totalMembrosSlides) % totalMembrosSlides;
-            updateMembrosCarousel();
-            resetMembrosTimer();
-        }
-
-        function goToMembrosSlide(index) {
-            membrosSlide = index;
-            updateMembrosCarousel();
-            resetMembrosTimer();
-        }
-
-        function resetMembrosTimer() {
-            clearInterval(membrosTimer);
-            membrosTimer = setInterval(nextMembrosSlide, 4000);
-        }
-
-        function setupMembrosSwipe() {
-            const track = document.getElementById('membrosTrack');
-            let touchStartX = 0;
-            let touchEndX = 0;
-            
-            if (track) {
-                track.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                }, { passive: true });
-
-                track.addEventListener('touchend', (e) => {
-                    touchEndX = e.changedTouches[0].screenX;
-                    const threshold = 50;
-                    if (touchStartX - touchEndX > threshold) {
-                        nextMembrosSlide();
-                    } else if (touchEndX - touchStartX > threshold) {
-                        prevMembrosSlide();
-                    }
-                }, { passive: true });
-            }
-        }
-
-
-        // --- CONFIGURAÇÃO DO TERCEIRO CARROSSEL (MODELOS QUE APRENDERÁ) ---
-        let modelosSlide = 0;
-        const totalModelosSlides = 4;
-        let modelosTimer;
-
-        function updateModelosCarousel() {
-            const track = document.getElementById('modelosTrack');
-            if (track) {
-                track.style.transform = `translateX(-${modelosSlide * 100}%)`;
-            }
-
-            const dots = document.querySelectorAll('.modelos-dot');
-            dots.forEach((dot, index) => {
-                if (index === modelosSlide) {
-                    dot.classList.remove('bg-white/50');
-                    dot.classList.add('bg-white', 'w-4');
-                } else {
-                    dot.classList.remove('bg-white', 'w-4');
-                    dot.classList.add('bg-white/50');
-                }
-            });
-        }
-
-        function nextModelosSlide() {
-            modelosSlide = (modelosSlide + 1) % totalModelosSlides;
-            updateModelosCarousel();
-            resetModelosTimer();
-        }
-
-        function prevModelosSlide() {
-            modelosSlide = (modelosSlide - 1 + totalModelosSlides) % totalModelosSlides;
-            updateModelosCarousel();
-            resetModelosTimer();
-        }
-
-        function goToModelosSlide(index) {
-            modelosSlide = index;
-            updateModelosCarousel();
-            resetModelosTimer();
-        }
-
-        function resetModelosTimer() {
-            clearInterval(modelosTimer);
-            modelosTimer = setInterval(nextModelosSlide, 4000);
-        }
-
-        function setupModelosSwipe() {
-            const track = document.getElementById('modelosTrack');
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            if (track) {
-                track.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                }, { passive: true });
-
-                track.addEventListener('touchend', (e) => {
-                    touchEndX = e.changedTouches[0].screenX;
-                    const threshold = 50;
-                    if (touchStartX - touchEndX > threshold) {
-                        nextModelosSlide();
-                    } else if (touchEndX - touchStartX > threshold) {
-                        prevModelosSlide();
-                    }
-                }, { passive: true });
-            }
-        }
-
-
         // --- CONTROLE DE CHECKBOXES E INTERAÇÃO DO QUIZ ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializa carrossel inicial
+            // Inicializa carrosséis
             updateCarousel();
             resetCarouselTimer();
             setupSwipe();
-
-            // Inicializa carrossel da área de membros
-            updateMembrosCarousel();
-            resetMembrosTimer();
-            setupMembrosSwipe();
-
-            // Inicializa carrossel dos modelos aprendidos
-            updateModelosCarousel();
-            resetModelosTimer();
-            setupModelosSwipe();
 
             function setupCheckboxes(containerId, isSingleChoice = false) {
                 const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
@@ -1438,6 +1311,15 @@
                             });
                         }
                         updateLabelVisual(label, checkbox.checked, textSpan);
+                    });
+
+                    // Toque robusto no container
+                    label.addEventListener('click', (e) => {
+                        if (e.target !== checkbox) {
+                            e.preventDefault();
+                            checkbox.checked = !checkbox.checked;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
                     });
 
                     updateLabelVisual(label, checkbox.checked, textSpan);
@@ -1463,12 +1345,25 @@
             setupCheckboxes('quizDoresPage', false);
             setupCheckboxes('quizObjetivosPage', false);
             setupCheckboxes('quizObjetivoFinalPage', true);
-        });
 
+            // Deixa a segunda dor pré-marcada visualmente igual ao print
+            const defaultActive = document.getElementById('defaultActiveDor');
+            if (defaultActive) {
+                const check = defaultActive.querySelector('input[type="checkbox"]');
+                check.checked = true;
+                defaultActive.classList.add('label-checked-bg');
+                const text = defaultActive.querySelector('.option-text');
+                if (text) text.classList.add('label-checked-text');
+            }
+        });
 
         // --- NAVEGAÇÃO DE PÁGINAS ---
         function hideAllViews() {
-            const views = ['landingPage', 'quizPage', 'quizCursoPage', 'quizTempoPage', 'quizDoresPage', 'quizObjetivosPage', 'quizObjetivoFinalPage', 'finalOfferPage', 'finalPage', 'testimonialsPage', 'loadingPage', 'finalCheckoutPage'];
+            const views = [
+                'landingPage', 'quizPage', 'quizCursoPage', 'quizTempoPage', 
+                'quizDoresPage', 'quizObjetivosPage', 'quizObjetivoFinalPage', 
+                'finalOfferPage', 'finalPage', 'testimonialsPage', 'loadingPage', 'finalCheckoutPage'
+            ];
             views.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -1479,14 +1374,12 @@
         }
         
         function showView(viewId) {
-            // Rola instantaneamente para o topo antes de renderizar para evitar "pulos" de scroll
-            window.scrollTo(0, 0); 
+            window.scrollTo({ top: 0, behavior: 'instant' }); 
             hideAllViews();
             
             const view = document.getElementById(viewId);
             if (view) {
                 view.classList.remove('hidden');
-                // Adiciona a classe de animação para acionar a transição cinemática
                 view.classList.add('animate-fade-in-up');
             }
         }
@@ -1539,7 +1432,6 @@
             percentText.textContent = '0%';
 
             fill.offsetWidth; 
-
             fill.style.transition = `width ${PROGRESS_DURATION / 1000}s linear`;
             fill.style.width = '100%';
 
@@ -1574,7 +1466,7 @@
         
         // --- FUNÇÕES DE CONTAGEM REGRESSIVA (CRONÔMETROS) ---
         const TIMER_DURATION = 3 * 60; 
-        let timers = [];
+        let timers = {};
 
         function updateTimer(elementId, duration) {
             let timer = duration;
@@ -1605,6 +1497,7 @@
             timers[elementId] = setInterval(tick, 1000);
         }
 
+        // Inicia temporizadores automaticamente ao abrir o checkout
         function startTimers() {
             updateTimer('timer1', TIMER_DURATION); 
             updateTimer('timer2', TIMER_DURATION); 
@@ -1627,19 +1520,10 @@
             }
         }
 
-        // Reseta o estado das páginas no carregamento inicial
+        // Inicializa o estado das telas ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('quizPage').classList.add('hidden');
-            document.getElementById('quizCursoPage').classList.add('hidden');
-            document.getElementById('quizTempoPage').classList.add('hidden');
-            document.getElementById('quizDoresPage').classList.add('hidden');
-            document.getElementById('quizObjetivosPage').classList.add('hidden');
-            document.getElementById('quizObjetivoFinalPage').classList.add('hidden');
-            document.getElementById('finalOfferPage').classList.add('hidden');
-            document.getElementById('finalPage').classList.add('hidden');
-            document.getElementById('testimonialsPage').classList.add('hidden');
-            document.getElementById('loadingPage').classList.add('hidden');
-            document.getElementById('finalCheckoutPage').classList.add('hidden');
+            hideAllViews();
+            document.getElementById('landingPage').classList.remove('hidden');
         });
     </script>
 </body>
