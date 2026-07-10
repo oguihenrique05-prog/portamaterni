@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Porta Maternidade - Fature de R$ 1.500 a R$ 3.000/mês</title>
     
+    <!-- Carrega o Tailwind CSS para habilitar o comportamento flexível e horizontal do carrossel -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preload" as="image" href="carrossel1.webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -356,6 +358,7 @@
         .brand-text { color: var(--brand-550); }
         .red-text { color: var(--red); }
         
+        /* Ajuste do container de carrossel para forçar o alinhamento horizontal */
         .hero-img-wrap { width: 100%; max-width: 384px; margin: 0 auto 24px; position: relative; }
         .hero-img {
             position: relative;
@@ -885,7 +888,7 @@
                 <span class="green-text">R$ 1.500 a R$ 3.000/mês</span> com a tendência dos <span class="brand-text">Portas Maternidade</span>
             </h1>
             
-            <!-- CARROSSEL DE IMAGENS ADAPTÁVEL DO QUIZ ORIGINAL -->
+            <!-- CARROSSEL DE IMAGENS ADAPTÁVEL DO QUIZ ORIGINAL (Ativado horizontalmente pelo Tailwind CDN) -->
             <div class="hero-img-wrap mb-8 relative w-full overflow-hidden rounded-xl shadow-lg bg-white">
                 <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out w-full" style="transform: translateX(0%);">
                     <!-- Slide 1 -->
